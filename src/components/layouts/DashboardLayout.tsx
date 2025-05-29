@@ -1,9 +1,11 @@
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/AppSidebar";
-import { AppHeader } from "@/components/AppHeader";
-import { AppFooter } from "@/components/AppFooter";
-import { Outlet, useLocation } from "react-router-dom";
 import { AppProvider } from "@/providers/AppProvider";
+import { Outlet, useLocation } from "react-router-dom";
+
+import { SidebarProvider } from "@/components/ui/sidebar";
+
+import { AppFooter } from "@/components/layouts/AppFooter";
+import { AppHeader } from "@/components/layouts/AppHeader";
+import { AppSidebar } from "@/components/layouts/AppSidebar";
 
 export function DashboardLayout() {
   const location = useLocation();
@@ -25,7 +27,7 @@ export function DashboardLayout() {
         <AppSidebar />
         <div className="flex flex-1 flex-col">
           <AppHeader title={getPageTitle()} />
-          <main className="relative flex-1 bg-gray-50">
+          <main className="relative flex-1">
             <Outlet />
           </main>
           <AppFooter />

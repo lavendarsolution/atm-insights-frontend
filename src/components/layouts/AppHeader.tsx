@@ -1,7 +1,9 @@
+import { Bell, HelpCircle, LogOut, MessageSquare, Search, Settings, User } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
-import { Bell, Search, User, Settings, HelpCircle, MessageSquare, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
+
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link, useLocation } from "react-router-dom";
 
 interface AppHeaderProps {
   title: string;
@@ -24,18 +25,24 @@ export function AppHeader({ title }: AppHeaderProps) {
   return (
     <header className="flex h-[65px] items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm">
       <div className="flex items-center gap-2">
-        <h1 className="text-xl font-medium text-gray-800">{title}</h1>
+        <h1 className="text-xl font-medium text-gray-900">{title}</h1>
       </div>
       <div className="flex items-center space-x-4">
         {/* Search */}
         <div className="relative hidden md:block">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <Search className="h-4 w-4 text-gray-400" />
+            <Search className="h-4 w-4 text-gray-500" />
           </div>
           <input
             type="text"
             placeholder="Search..."
-            className="w-48 rounded-full bg-gray-100 py-2 pl-10 pr-4 text-sm transition-all duration-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600 lg:w-64"
+            className="w-48 rounded-full bg-gray-50 py-2 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-500 border border-gray-200 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 lg:w-64"
+            onFocus={(e) => {
+              e.target.style.backgroundColor = "#f9fafb";
+            }}
+            onBlur={(e) => {
+              e.target.style.backgroundColor = "#f9fafb";
+            }}
           />
         </div>
 
@@ -51,49 +58,47 @@ export function AppHeader({ title }: AppHeaderProps) {
         {/* Profile Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative flex items-center space-x-2 rounded-full py-2 pl-2 pr-4">
+            <Button variant="ghost" className="relative flex items-center space-x-2 rounded-full py-2 pl-2 pr-4 text-gray-900 hover:bg-gray-100">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-white">
                 <User className="h-5 w-5" />
               </div>
-              <span className="hidden text-sm font-medium md:inline">
-                {user?.name || "User"}
-              </span>
+              <span className="hidden text-sm font-medium md:inline">{user?.name || "User"}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-60" align="end">
-            <DropdownMenuLabel>
+          <DropdownMenuContent className="w-60 bg-white border-gray-200" align="end">
+            <DropdownMenuLabel className="text-gray-900">
               {user?.name || "User"}
-              <p className="text-xs font-normal">{user?.email || "user@example.com"}</p>
+              <p className="text-xs font-normal text-gray-500">{user?.email || "user@example.com"}</p>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="bg-gray-200" />
             <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem asChild className="text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">
                 <Link to="/settings/profile">
-                  <User className="h-4 w-4 mr-2" />
+                  <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem asChild className="text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">
                 <Link to="/settings">
-                  <Settings className="h-4 w-4 mr-2" />
+                  <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="bg-gray-200" />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <HelpCircle className="h-4 w-4 mr-2" />
+              <DropdownMenuItem className="text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">
+                <HelpCircle className="mr-2 h-4 w-4" />
                 <span>Help & Support</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <MessageSquare className="h-4 w-4 mr-2" />
+              <DropdownMenuItem className="text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">
+                <MessageSquare className="mr-2 h-4 w-4" />
                 <span>Feedback</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => logout()}>
-              <LogOut className="h-4 w-4 mr-2" />
+            <DropdownMenuSeparator className="bg-gray-200" />
+            <DropdownMenuItem onClick={() => logout()} className="text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">
+              <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -26,8 +26,8 @@ const iconButtonVariants = cva(
         xs: "min-w-5 w-5 h-5 [&_svg]:h-4 [&_svg]:w-4",
         sm: "min-w-6 w-6 h-6 [&_svg]:h-4 [&_svg]:w-4",
         md: "min-w-8 w-8 h-8 [&_svg]:h-4 [&_svg]:w-4",
-        default: "min-w-9 w-9 h-9 [&_svg]:h-5 [&_svg]:w-5",
-        lg: "h-10 w-10",
+        default: "min-w-9 w-9 h-9 [&_svg]:h-4 [&_svg]:w-4",
+        lg: "h-10 w-10 [&_svg]:h-5 [&_svg]:w-5",
       },
     },
     defaultVariants: {
@@ -47,7 +47,6 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
-        type="button"
         className={cn(iconButtonVariants({ variant, size, className }))}
         disabled={props.disabled || loading}
         ref={ref}

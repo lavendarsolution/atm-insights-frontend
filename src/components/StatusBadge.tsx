@@ -1,6 +1,6 @@
 
 import { cn } from "@/lib/utils";
-import { ATMStatus } from "@/lib/types";
+import { ATMStatus } from "@/features/atms/schema";
 
 interface StatusBadgeProps {
   status: ATMStatus;
@@ -11,15 +11,15 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   const getStatusClass = (status: ATMStatus) => {
     switch (status) {
       case "active":
-        return "bg-success text-success-foreground";
-      case "warning":
-        return "bg-warning text-warning-foreground";
-      case "error":
-        return "bg-error text-error-foreground";
+        return "bg-green-100 text-green-800";
+      case "maintenance":
+        return "bg-yellow-100 text-yellow-800";
+      case "decommissioned":
+        return "bg-red-100 text-red-800";
       case "inactive":
-        return "bg-muted text-muted-foreground";
+        return "bg-gray-100 text-gray-800";
       default:
-        return "bg-muted text-muted-foreground";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -27,10 +27,10 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     switch (status) {
       case "active":
         return "Active";
-      case "warning":
-        return "Warning";
-      case "error":
-        return "Error";
+      case "maintenance":
+        return "Maintenance";
+      case "decommissioned":
+        return "Decommissioned";
       case "inactive":
         return "Inactive";
       default:

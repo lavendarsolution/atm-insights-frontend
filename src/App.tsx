@@ -1,23 +1,32 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { DashboardLayout } from "./components/DashboardLayout";
-import { AuthProvider } from "./lib/auth-context";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import ATMDetail from "./pages/ATMDetail";
-import ATMList from "./pages/ATMList";
-import Analytics from "./pages/Analytics";
-import Alerts from "./pages/Alerts";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
-import AddATM from "./pages/AddATM";
-import EditATM from "./pages/EditATM";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
-const queryClient = new QueryClient();
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+
+import ProtectedRoute from "./components/ProtectedRoute";
+import { DashboardLayout } from "./components/layouts/DashboardLayout";
+import { AuthProvider } from "./lib/auth-context";
+import ATMDetail from "./pages/ATMDetail";
+import AddATM from "./pages/AddATM";
+import Alerts from "./pages/Alerts";
+import Dashboard from "./pages/Dashboard";
+import EditATM from "./pages/EditATM";
+import Login from "./pages/Login";
+import NotFound from "./pages/NotFound";
+import Settings from "./pages/Settings";
+import Analytics from "./pages/PageAnalytics";
+import PageAtms from "./pages/atms/PageAtms";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -37,7 +46,7 @@ const App = () => (
               }
             >
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/atms" element={<ATMList />} />
+              <Route path="/atms" element={<PageAtms />} />
               <Route path="/atm/add" element={<AddATM />} />
               <Route path="/atm/:atmId" element={<ATMDetail />} />
               <Route path="/atm/:atmId/edit" element={<EditATM />} />

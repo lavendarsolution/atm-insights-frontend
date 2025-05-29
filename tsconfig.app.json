@@ -24,7 +24,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["./src/types/commom.d.ts"]
   },
   "include": ["src"]
 }

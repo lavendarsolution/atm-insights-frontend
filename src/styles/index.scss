@@ -1,0 +1,9 @@
+@use "global";
+@use "components";
+
+/* Force light mode by preventing dark mode styles */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light;
+  }
+}

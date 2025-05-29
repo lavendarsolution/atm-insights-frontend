@@ -53,7 +53,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   const [state, dispatch] = useReducer(reducer, {
     isAppLoading: false,
     user: null,
-    sidebarOpen: false,
+    sidebarOpen: true,
   });
 
   const setIsAppLoading = (value: boolean) => {
