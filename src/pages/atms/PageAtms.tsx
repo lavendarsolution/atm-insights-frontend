@@ -6,18 +6,20 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryParams } from "@/hooks/useQueryParams";
 import { PaginationState } from "@tanstack/react-table";
 import { ColumnDef } from "@tanstack/react-table";
-import { Building, Download, Filter, Plus, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
+import { Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
+import { datetime2str } from "@/lib/helpers";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-import { ATMActionsDropdown } from "@/components/ATMActionsDropdown";
 import { StatusBadge } from "@/components/StatusBadge";
 import PageContainer from "@/components/layouts/PageContainer";
-import KDataTable from "@/components/table/KDataTable";
 import KPaginatedKDataTable from "@/components/table/KPaginatedDataTable";
 
 const atmColumns: ColumnDef<ATM>[] = [
@@ -31,7 +33,7 @@ const atmColumns: ColumnDef<ATM>[] = [
     header: "Name",
   },
   {
-    accessorKey: "location",
+    accessorKey: "location_address",
     header: "Location",
   },
   {
@@ -39,72 +41,46 @@ const atmColumns: ColumnDef<ATM>[] = [
     header: "Model",
   },
   {
+    accessorKey: "manufacturer",
+    header: "Manufacturer",
+  },
+  {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => <StatusBadge status={row.getValue("status")} />,
   },
   {
-    accessorKey: "cash_level",
-    header: "Cash Level",
-    cell: ({ row }) => {
-      //   const cashLevel = row.original.lastTelemetry?.cash_level || 0;
-      const cashLevel = 0;
-      return (
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-16 overflow-hidden rounded-full bg-muted">
-            <div
-              className={`h-full transition-all ${cashLevel > 70 ? "bg-green-500" : cashLevel > 30 ? "bg-yellow-500" : "bg-red-500"}`}
-              style={{ width: `${cashLevel}%` }}
-            />
-          </div>
-          <span className="text-sm text-muted-foreground">{cashLevel}%</span>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "temperature",
-    header: "Temperature",
-    cell: ({ row }) => {
-      //   const temp = row.original.lastTelemetry?.temperature;
-      const temp = 0;
-      return temp ? `${temp}°C` : "N/A";
-    },
-  },
-  {
-    accessorKey: "network_status",
-    header: "Network",
-    cell: ({ row }) => {
-      const networkStatus = "good";
-      //   const networkStatus = row.original.lastTelemetry?.network_status || "unknown";
-      return (
-        <span
-          className={`rounded-full px-2 py-1 text-xs ${
-            networkStatus === "good" ? "bg-green-100 text-green-800" : networkStatus === "fair" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"
-          }`}
-        >
-          {networkStatus}
-        </span>
-      );
-    },
-  },
-  {
     accessorKey: "updated_at",
     header: "Last Update",
-    cell: ({ row }) => new Date(row.getValue("updated_at")).toLocaleDateString(),
+    cell: ({ row }) => datetime2str(row.original.updated_at),
   },
   {
     id: "actions",
-    header: "Actions",
+    header: "",
     cell: ({ row }) => (
       <div className="flex items-center justify-end">
-        <ATMActionsDropdown
-          atmId={row.original.atm_id}
-          onDelete={(id) => {
-            // Handle delete action
-            console.log("Delete ATM:", id);
-          }}
-        />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[160px]">
+            <DropdownMenuItem>
+              <Eye className="mr-2 h-4 w-4" />
+              View Details
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-destructive">
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     ),
   },
@@ -219,35 +195,22 @@ export default function PageAtms() {
       ]
     : [];
 
-  if (error) {
-    return (
-      <PageContainer>
-        <div className="flex h-64 items-center justify-center">
-          <div className="text-center">
-            <p className="mb-2 text-red-500">Error loading ATM data</p>
-            <Button onClick={() => window.location.reload()}>Retry</Button>
-          </div>
-        </div>
-      </PageContainer>
-    );
-  }
-
   return (
     <PageContainer>
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-4">
+      <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1>ATM Management</h1>
           <p className="text-muted-foreground">Monitor and manage your ATM network</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={handleAddATM}>
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus />
             Add ATM
           </Button>
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-2">
+      <div className="mb-2 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="relative">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Search ATMs..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-8 md:w-[300px]" />
@@ -280,14 +243,24 @@ export default function PageAtms() {
           </Select>
         </div>
       </div>
-      <KPaginatedKDataTable
-        columns={atmColumns}
-        data={atmData?.data || []}
-        loading={isLoading}
-        pagination={pagination}
-        setPagination={setPagination}
-        total={atmData?.total || 0}
-      />
+      {error ? (
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle>Error Loading ATMs</CardTitle>
+            <CardDescription>{error.message}</CardDescription>
+          </CardHeader>
+          <CardContent>Please try again later or contact support if the issue persists.</CardContent>
+        </Card>
+      ) : (
+        <KPaginatedKDataTable
+          columns={atmColumns}
+          data={atmData?.data || []}
+          loading={isLoading}
+          pagination={pagination}
+          setPagination={setPagination}
+          total={atmData?.total || 0}
+        />
+      )}
     </PageContainer>
   );
 }

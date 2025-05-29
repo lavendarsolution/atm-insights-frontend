@@ -11,7 +11,7 @@ import { AuthProvider } from "./lib/auth-context";
 import ATMDetail from "./pages/ATMDetail";
 import AddATM from "./pages/AddATM";
 import Alerts from "./pages/Alerts";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/PageDashboard";
 import EditATM from "./pages/EditATM";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";

@@ -1,11 +1,8 @@
 "use client";
 
-import { useRef } from "react";
-
-import useHandleOutsideClick from "@/hooks/useHandleOutsideClick";
 import { useApp } from "@/providers/AppProvider";
 import clsx from "clsx";
-import { BanknoteArrowDownIcon, BarChart3, BellIcon, ChevronLeft, ChevronRight, LayoutDashboard, ListIcon, SettingsIcon, Sun } from "lucide-react";
+import { BanknoteArrowDownIcon, BarChart3, BellIcon, ChevronLeft, ChevronRight, LayoutDashboard, MonitorCheckIcon, SettingsIcon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
@@ -14,7 +11,7 @@ import { IconButton } from "@/components/ui/icon-button";
 
 const menuItems = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/atms", label: "ATM Registry", icon: ListIcon },
+  { path: "/atms", label: "ATM Registry", icon: MonitorCheckIcon },
   { path: "/analytics", label: "Analytics", icon: BarChart3 },
   { path: "/alerts", label: "Alerts", icon: BellIcon },
   { path: "/settings", label: "Settings", icon: SettingsIcon },
