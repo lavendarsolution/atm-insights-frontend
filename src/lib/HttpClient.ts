@@ -9,6 +9,9 @@ const Axios = axios.create({
 
 Axios.interceptors.request.use(function (config) {
   nprogress.start();
+
+  Axios.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("token")}`;
+
   return config;
 });
 
@@ -24,6 +27,13 @@ Axios.interceptors.response.use(
 );
 
 const HttpClient = {
+  setToken: (token: string) => {
+    if (token) {
+      Axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    } else {
+      delete Axios.defaults.headers.common["Authorization"];
+    }
+  },
   Get: async (url: string, params?: any) => {
     return await Axios.get(url, {
       params,

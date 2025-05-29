@@ -1,7 +1,6 @@
+import { useApp } from "@/providers/AppProvider";
 import { Bell, HelpCircle, LogOut, MessageSquare, Search, Settings, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-
-import { useAuth } from "@/lib/auth-context";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +18,7 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ title }: AppHeaderProps) {
-  const { user, logout } = useAuth();
+  const [{ user }, { logout }] = useApp();
   const location = useLocation();
 
   return (
@@ -36,7 +35,7 @@ export function AppHeader({ title }: AppHeaderProps) {
           <input
             type="text"
             placeholder="Search..."
-            className="w-48 rounded-full bg-gray-50 py-2 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-500 border border-gray-200 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 lg:w-64"
+            className="w-48 rounded-full border border-gray-200 bg-gray-50 py-2 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-500 transition-all duration-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 lg:w-64"
             onFocus={(e) => {
               e.target.style.backgroundColor = "#f9fafb";
             }}
@@ -58,16 +57,16 @@ export function AppHeader({ title }: AppHeaderProps) {
         {/* Profile Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative flex items-center space-x-2 rounded-full py-2 pl-2 pr-4 text-gray-900 hover:bg-gray-100">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-white">
+            <Button variant="ghost" className="relative flex items-center rounded-full p-2 text-gray-900 hover:bg-gray-100">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white">
                 <User className="h-5 w-5" />
               </div>
-              <span className="hidden text-sm font-medium md:inline">{user?.name || "User"}</span>
+              <span className="hidden text-sm font-medium md:inline">{user?.full_name || "User"}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-60 bg-white border-gray-200" align="end">
+          <DropdownMenuContent className="w-60 border-gray-200 bg-white" align="end">
             <DropdownMenuLabel className="text-gray-900">
-              {user?.name || "User"}
+              {user?.full_name || "User"}
               <p className="text-xs font-normal text-gray-500">{user?.email || "user@example.com"}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-gray-200" />

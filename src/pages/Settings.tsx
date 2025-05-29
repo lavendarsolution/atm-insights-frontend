@@ -24,7 +24,7 @@ export default function Settings() {
     <PageContainer>
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">Configure your ATM Insight dashboard</p>
+        <p className="text-muted-foreground">Configure your ATM Insights dashboard</p>
       </div>
 
       <Tabs defaultValue="general">

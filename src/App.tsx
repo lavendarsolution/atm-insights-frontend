@@ -7,17 +7,17 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import { DashboardLayout } from "./components/layouts/DashboardLayout";
-import { AuthProvider } from "./lib/auth-context";
 import ATMDetail from "./pages/ATMDetail";
 import AddATM from "./pages/AddATM";
 import Alerts from "./pages/Alerts";
-import Dashboard from "./pages/PageDashboard";
 import EditATM from "./pages/EditATM";
-import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
-import Settings from "./pages/Settings";
 import Analytics from "./pages/PageAnalytics";
+import Dashboard from "./pages/PageDashboard";
+import Settings from "./pages/Settings";
 import PageAtms from "./pages/atms/PageAtms";
+import Login from "./pages/auth/Login";
+import { AppProvider } from "./providers/AppProvider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,7 +30,7 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
+    <AppProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -59,7 +59,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-    </AuthProvider>
+    </AppProvider>
   </QueryClientProvider>
 );
 

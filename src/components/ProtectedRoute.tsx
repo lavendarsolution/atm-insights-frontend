@@ -1,26 +1,21 @@
-
 import { ReactNode } from "react";
-import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/lib/auth-context";
+
+import { useApp } from "@/providers/AppProvider";
 import { Loader2 } from "lucide-react";
+import { Navigate, useLocation } from "react-router-dom";
+
+import LoadingOverlay from "./LoadingOverlay";
 
 interface ProtectedRouteProps {
   children: ReactNode;
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, isLoading } = useAuth();
+  const [{ user, isAuthenticating }] = useApp();
   const location = useLocation();
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center">
-          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
+  if (isAuthenticating) {
+    return <LoadingOverlay isLoading={isAuthenticating}></LoadingOverlay>;
   }
 
   if (!user) {
