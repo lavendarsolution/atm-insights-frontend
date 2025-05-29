@@ -8,22 +8,11 @@ import { AppSidebar } from "@/components/layouts/AppSidebar";
 export function DashboardLayout() {
   const location = useLocation();
 
-  // Determine page title based on current path
-  const getPageTitle = () => {
-    const path = location.pathname;
-    if (path.includes("dashboard")) return "Dashboard";
-    if (path.includes("atms")) return "ATM Registry";
-    if (path.includes("analytics")) return "Analytics";
-    if (path.includes("alerts")) return "Alerts";
-    if (path.includes("settings")) return "Settings";
-    return "ATM Insights";
-  };
-
   return (
     <div className="flex h-screen">
       <AppSidebar />
       <div className="flex flex-1 flex-col">
-        <AppHeader title={getPageTitle()} />
+        <AppHeader />
         <main className="relative flex-1">
           <Outlet />
         </main>

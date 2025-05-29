@@ -199,8 +199,8 @@ export default function PageAtms() {
     <PageContainer>
       <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1>ATM Management</h1>
-          <p className="text-muted-foreground">Monitor and manage your ATM network</p>
+          <h2>ATM Management</h2>
+          <p className="text-sm text-muted-foreground">Monitor and manage your ATM network</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={handleAddATM}>

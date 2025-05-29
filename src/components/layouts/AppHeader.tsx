@@ -13,19 +13,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface AppHeaderProps {
-  title: string;
-}
-
-export function AppHeader({ title }: AppHeaderProps) {
+export function AppHeader() {
   const [{ user }, { logout }] = useApp();
   const location = useLocation();
 
   return (
     <header className="flex h-[65px] items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm">
-      <div className="flex items-center gap-2">
-        <h1 className="text-xl font-medium text-gray-900">{title}</h1>
-      </div>
+      <div className="flex items-center gap-2"></div>
       <div className="flex items-center space-x-4">
         {/* Search */}
         <div className="relative hidden md:block">
