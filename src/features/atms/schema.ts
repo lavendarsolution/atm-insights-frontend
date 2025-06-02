@@ -39,3 +39,19 @@ export type ATMBase = z.infer<typeof atmBaseSchema>;
 export type ATMCreate = z.infer<typeof atmCreateSchema>;
 export type ATMUpdate = z.infer<typeof atmUpdateSchema>;
 export type ATM = z.infer<typeof atmSchema>;
+
+export type ATMTelemetry = {
+  time: string;
+  atm_id: string;
+  status: string;
+  uptime_seconds?: number;
+  cash_level_percent?: number;
+  temperature_celsius?: number;
+  cpu_usage_percent?: number;
+  memory_usage_percent?: number;
+  disk_usage_percent?: number;
+  network_status?: string;
+  network_latency_ms?: number;
+  error_code?: string;
+  error_message?: string;
+};

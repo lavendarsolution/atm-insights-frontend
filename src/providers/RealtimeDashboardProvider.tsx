@@ -1,7 +1,7 @@
 import React, { ReactNode, createContext, useCallback, useContext, useEffect, useReducer } from "react";
 
 import { WebSocketMessage, useDashboardWebSocket } from "@/hooks/useWebSocket";
-import { notification } from "sonner";
+import { toast } from "sonner";
 
 import HttpClient from "@/lib/HttpClient";
 

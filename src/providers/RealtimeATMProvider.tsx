@@ -1,23 +1,8 @@
 import React, { ReactNode, createContext, useContext, useEffect, useReducer } from "react";
 
+import { ATMTelemetry } from "@/features/atms/schema";
 import { WebSocketMessage, useATMDetailWebSocket } from "@/hooks/useWebSocket";
-import { notification } from "sonner";
-
-interface ATMTelemetry {
-  time: string;
-  atm_id: string;
-  status: string;
-  uptime_seconds?: number;
-  cash_level_percent?: number;
-  temperature_celsius?: number;
-  cpu_usage_percent?: number;
-  memory_usage_percent?: number;
-  disk_usage_percent?: number;
-  network_status?: string;
-  network_latency_ms?: number;
-  error_code?: string;
-  error_message?: string;
-}
+import { toast } from "sonner";
 
 interface RealtimeATMState {
   atmId: string;

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { useATMData } from "@/features/atms/hooks";
+import { useATMData, useDeleteAtmByIdMutation } from "@/features/atms/hooks";
 import { ATM } from "@/features/atms/schema";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryParams } from "@/hooks/useQueryParams";
@@ -10,6 +10,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Clock, Plus, Search, Wifi, WifiOff } from "lucide-react";
 import { Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 import { datetime2str, formatLastUpdate } from "@/lib/helpers";
 
@@ -22,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { StatusBadge } from "@/components/StatusBadge";
+import { useConfirm } from "@/components/confirm";
 import PageContainer from "@/components/layouts/PageContainer";
 import { ATMModal } from "@/components/modals/ATMModal";
 import KPaginatedKDataTable from "@/components/table/KPaginatedDataTable";
@@ -43,7 +45,11 @@ const RealtimeStatusBadge = ({ atm, isRecentlyUpdated }: { atm: ATM; isRecentlyU
 
 // Main ATMs List Content Component
 function ATMsListContent() {
+  const confirm = useConfirm();
   const navigate = useNavigate();
+
+  const deleteAtmByIdMutation = useDeleteAtmByIdMutation();
+
   const { queryParams, updateQueryParams } = useQueryParams();
   const isInitialMount = useRef(true);
   const { state: realtimeState, actions: realtimeActions } = useRealtimeATMs();
@@ -147,7 +153,24 @@ function ATMsListContent() {
                   Edit
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive" onClick={() => {}}>
+                <DropdownMenuItem
+                  className="text-destructive"
+                  onClick={() => {
+                    confirm({
+                      title: "Delete ATM",
+                      description: `Are you sure you want to delete ATM ${row.original.atm_id}? This action cannot be undone.`,
+                    }).then(() => {
+                      deleteAtmByIdMutation.mutate(row.original.atm_id, {
+                        onSuccess: () => {
+                          toast.success("ATM deleted successfully");
+                        },
+                        onError: (error) => {
+                          toast.error(`Failed to delete ATM: ${error.message}`);
+                        },
+                      });
+                    });
+                  }}
+                >
                   <Trash2 className="h-4 w-4" />
                   Delete
                 </DropdownMenuItem>
@@ -157,7 +180,7 @@ function ATMsListContent() {
         ),
       },
     ];
-  }, [navigate, realtimeState.statusUpdates]);
+  }, [navigate, confirm]); //eslint-disable-line
 
   // Update URL when filters change (skip on initial mount if defaults)
   useEffect(() => {

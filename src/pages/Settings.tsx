@@ -118,7 +118,7 @@ export default function Settings() {
             <CardContent className="space-y-6">
               <div>
                 <h3 className="mb-4 text-lg font-medium">Email Notifications</h3>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="email-critical">Critical Alerts</Label>
                     <Switch id="email-critical" defaultChecked />
@@ -142,7 +142,7 @@ export default function Settings() {
 
               <div>
                 <h3 className="mb-4 text-lg font-medium">Push Notifications</h3>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="push-critical">Critical Alerts</Label>
                     <Switch id="push-critical" defaultChecked />
@@ -193,7 +193,7 @@ export default function Settings() {
 
               <div>
                 <h3 className="mb-4 text-lg font-medium">Change Password</h3>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div className="space-y-2">
                     <Label htmlFor="current-password">Current Password</Label>
                     <Input id="current-password" type="password" />

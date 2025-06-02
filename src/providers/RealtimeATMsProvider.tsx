@@ -2,7 +2,7 @@ import React, { ReactNode, createContext, useCallback, useContext, useEffect, us
 
 import { ATM } from "@/features/atms/schema";
 import { WebSocketMessage, useDashboardWebSocket } from "@/hooks/useWebSocket";
-import { notification } from "sonner";
+import { toast } from "sonner";
 
 interface RealtimeATMsState {
   atms: ATM[];

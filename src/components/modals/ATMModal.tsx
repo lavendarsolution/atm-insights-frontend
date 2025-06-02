@@ -223,7 +223,7 @@ export function ATMModal({ open, onOpenChange, mode, atmId }: ATMModalProps) {
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isSubmitting || (isEditMode && isLoadingATM)}>
-                  <Save className="mr-2 h-4 w-4" />
+                  <Save className="h-4 w-4" />
                   {isSubmitting ? submittingText : submitText}
                 </Button>
               </DialogFooter>

@@ -31,10 +31,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { StatusBadge } from "@/components/StatusBadge";
+import PageContainer from "@/components/layouts/PageContainer";
 
 // Component that uses the real-time data
-function ATMDetailContent() {
-  const { atmId } = useParams<{ atmId: string }>();
+function AtmDetailContent({ atmId }) {
   const navigate = useNavigate();
   const { state, actions } = useRealtimeATM();
   const { latestTelemetry, telemetryHistory, isConnected, isLoading, lastUpdate, connectionError } = state;
@@ -109,12 +109,6 @@ function ATMDetailContent() {
     }
   };
 
-  const getMetricTrend = (current: number, previous: number) => {
-    if (current === previous) return { icon: Minus, color: "text-gray-500", text: "No change" };
-    if (current > previous) return { icon: TrendingUp, color: "text-green-600", text: "Increased" };
-    return { icon: TrendingDown, color: "text-red-600", text: "Decreased" };
-  };
-
   const getHealthScore = () => {
     if (!latestTelemetry) return 0;
 
@@ -156,7 +150,7 @@ function ATMDetailContent() {
   const healthScore = getHealthScore();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Header */}
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon" onClick={() => navigate("/atms")}>
@@ -164,13 +158,12 @@ function ATMDetailContent() {
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-bold tracking-tight">{atm.atm_id}</h1>
+            <h1>{atm.atm_id}</h1>
             {/* Real-time connection indicator */}
             <div className="flex items-center gap-2">
               {isConnected ? (
                 <>
                   <div className="flex items-center gap-1">
-                    <div className="h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
                     <Wifi className="h-4 w-4 text-green-500" />
                     <span className="text-sm text-green-600">Live</span>
                   </div>
@@ -188,7 +181,7 @@ function ATMDetailContent() {
               <span className={`text-sm font-bold ${getHealthScoreColor(healthScore)}`}>{healthScore}%</span>
             </div>
           </div>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {atm.name} • {atm.model} • Last update: {formatLastUpdate(lastUpdate)}
           </p>
         </div>
@@ -196,10 +189,6 @@ function ATMDetailContent() {
           <Button variant="outline" size="sm" onClick={actions.requestHistoryRefresh} disabled={!isConnected}>
             <RefreshCcw className="mr-2 h-4 w-4" />
             Refresh
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate(`/atm/${atmId}/edit`)}>
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
           </Button>
         </div>
       </div>
@@ -219,7 +208,7 @@ function ATMDetailContent() {
 
       {/* Main Content Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="mb-2 grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="telemetry">Live Telemetry</TabsTrigger>
           <TabsTrigger value="charts">Charts</TabsTrigger>
@@ -227,18 +216,18 @@ function ATMDetailContent() {
         </TabsList>
 
         {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <TabsContent value="overview" className="space-y-3">
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {/* ATM Information Card */}
             <Card className="lg:col-span-1">
               <CardHeader>
-                <CardTitle className="text-lg">ATM Information</CardTitle>
+                <CardTitle>ATM Information</CardTitle>
                 <CardDescription>Basic information and configuration</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <div className="text-sm font-medium text-muted-foreground">ATM ID</div>
-                  <div className="font-mono">{atm.atm_id}</div>
+                  <div className="font-base">{atm.atm_id}</div>
                 </div>
 
                 <div className="space-y-2">
@@ -392,7 +381,7 @@ function ATMDetailContent() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span>Error Code:</span>
                     <Badge variant="destructive">{latestTelemetry.error_code}</Badge>
@@ -416,7 +405,7 @@ function ATMDetailContent() {
         </TabsContent>
 
         {/* Live Telemetry Tab */}
-        <TabsContent value="telemetry" className="space-y-6">
+        <TabsContent value="telemetry" className="space-y-3">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -526,7 +515,7 @@ function ATMDetailContent() {
         </TabsContent>
 
         {/* Charts Tab */}
-        <TabsContent value="charts" className="space-y-6">
+        <TabsContent value="charts" className="space-y-3">
           <div className="grid gap-6">
             <Card>
               <CardHeader>
@@ -597,14 +586,14 @@ function ATMDetailContent() {
         </TabsContent>
 
         {/* Maintenance Tab */}
-        <TabsContent value="maintenance" className="space-y-6">
+        <TabsContent value="maintenance" className="space-y-3">
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle>Maintenance Status</CardTitle>
                 <CardDescription>Current maintenance information</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span>Last Maintenance:</span>
                   <span className="font-medium">15 days ago</span>
@@ -636,7 +625,7 @@ function ATMDetailContent() {
                 <CardTitle>System Health</CardTitle>
                 <CardDescription>Overall system health assessment</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span>Overall Health Score</span>
@@ -693,7 +682,7 @@ function ATMDetailContent() {
               <CardDescription>Recent maintenance activities and alerts</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex items-center gap-4 rounded-lg border p-4">
                   <div className="h-2 w-2 rounded-full bg-green-500"></div>
                   <div className="flex-1">
@@ -724,7 +713,6 @@ function ATMDetailContent() {
           </Card>
         </TabsContent>
       </Tabs>
-
       {/* Floating Connection Status (when disconnected) */}
       {!isConnected && !isLoading && (
         <div className="fixed bottom-4 right-4 z-50">
@@ -747,22 +735,26 @@ function ATMDetailContent() {
 }
 
 // Main component with provider wrapper
-export default function ATMDetail() {
+export default function PageAtmDetail() {
   const { atmId } = useParams<{ atmId: string }>();
 
   if (!atmId) {
     return (
-      <div className="p-8 text-center">
-        <h2 className="text-2xl font-bold">Invalid ATM ID</h2>
-        <p className="mb-4 text-muted-foreground">No ATM ID provided.</p>
-        <Button onClick={() => window.history.back()}>Go Back</Button>
-      </div>
+      <PageContainer>
+        <div className="p-8 text-center">
+          <h2 className="text-2xl font-bold">Invalid ATM ID</h2>
+          <p className="mb-4 text-muted-foreground">No ATM ID provided.</p>
+          <Button onClick={() => window.history.back()}>Go Back</Button>
+        </div>
+      </PageContainer>
     );
   }
 
   return (
     <RealtimeATMProvider atmId={atmId}>
-      <ATMDetailContent />
+      <PageContainer>
+        <AtmDetailContent atmId={atmId} />
+      </PageContainer>
     </RealtimeATMProvider>
   );
 }

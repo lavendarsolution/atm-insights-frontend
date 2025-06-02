@@ -6,13 +6,14 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import { ConfirmProvider } from "./components/confirm";
 import { DashboardLayout } from "./components/layouts/DashboardLayout";
-import ATMDetail from "./pages/ATMDetail";
 import Alerts from "./pages/Alerts";
 import NotFound from "./pages/NotFound";
 import Analytics from "./pages/PageAnalytics";
 import Dashboard from "./pages/PageDashboard";
 import Settings from "./pages/Settings";
+import PageAtmDetail from "./pages/atms/PageAtmDetail";
 import PageAtms from "./pages/atms/PageAtms";
 import Login from "./pages/auth/Login";
 import { AppProvider } from "./providers/AppProvider";
@@ -31,48 +32,50 @@ const queryClient = new QueryClient({
 const DashboardWithRealtime = ({ children }: { children: React.ReactNode }) => <RealtimeDashboardProvider>{children}</RealtimeDashboardProvider>;
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AppProvider>
-      <TooltipProvider>
-        <Notifier />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="/login" element={<Login />} />
-            <Route
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout />
-                </ProtectedRoute>
-              }
-            >
-              {/* Dashboard route with real-time provider */}
+  <ConfirmProvider>
+    <QueryClientProvider client={queryClient}>
+      <AppProvider>
+        <TooltipProvider>
+          <Notifier />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/login" element={<Login />} />
               <Route
-                path="/dashboard"
                 element={
-                  <DashboardWithRealtime>
-                    <Dashboard />
-                  </DashboardWithRealtime>
+                  <ProtectedRoute>
+                    <DashboardLayout />
+                  </ProtectedRoute>
                 }
-              />
+              >
+                {/* Dashboard route with real-time provider */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <DashboardWithRealtime>
+                      <Dashboard />
+                    </DashboardWithRealtime>
+                  }
+                />
 
-              {/* ATM routes - PageAtms now has its own real-time provider */}
-              <Route path="/atms" element={<PageAtms />} />
-              <Route path="/atm/:atmId" element={<ATMDetail />} />
+                {/* ATM routes - PageAtms now has its own real-time provider */}
+                <Route path="/atms" element={<PageAtms />} />
+                <Route path="/atm/:atmId" element={<PageAtmDetail />} />
 
-              {/* Other routes */}
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/alerts" element={<Alerts />} />
-              <Route path="/settings" element={<Settings />} />
-            </Route>
+                {/* Other routes */}
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/alerts" element={<Alerts />} />
+                <Route path="/settings" element={<Settings />} />
+              </Route>
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AppProvider>
-  </QueryClientProvider>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AppProvider>
+    </QueryClientProvider>
+  </ConfirmProvider>
 );
 
 export default App;

@@ -46,7 +46,7 @@ export default function Login() {
         <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-purple-500/5 blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 w-full max-w-md space-y-4">
+      <div className="relative z-10 w-full max-w-md space-y-3">
         {/* Header */}
         <div className="text-center">
           <div className="flex justify-center">
@@ -66,7 +66,7 @@ export default function Login() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
                   Email
@@ -102,7 +102,7 @@ export default function Login() {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <Button type="submit" className="w-full text-base font-medium" disabled={isSubmitting}>
                 {isSubmitting ? "Logging in..." : "Log in"}
               </Button>

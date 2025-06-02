@@ -2,6 +2,8 @@ import { ATMQueryParams, createATM, fetchATMById, fetchATMs, updateATM } from "@
 import { ATMCreate, ATMUpdate } from "@/features/atms/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import HttpClient from "@/lib/HttpClient";
+
 export function useATMData(params: ATMQueryParams) {
   return useQuery({
     queryKey: ["atms", params],
@@ -37,6 +39,17 @@ export function useUpdateATM() {
     onSuccess: (_, { atmId }) => {
       queryClient.invalidateQueries({ queryKey: ["atms"] });
       queryClient.invalidateQueries({ queryKey: ["atm", atmId] });
+    },
+  });
+}
+
+export function useDeleteAtmByIdMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (atmId: string) => HttpClient.Delete(`/api/v1/atms/${atmId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["atms"] });
     },
   });
 }
