@@ -44,6 +44,29 @@ export const useWebSocket = (options: WebSocketHookOptions): WebSocketHookReturn
   const reconnectAttemptsRef = useRef(0);
   const pingIntervalRef = useRef<number | null>(null);
 
+  // Use refs to store callbacks to avoid dependency issues
+  const onMessageRef = useRef(onMessage);
+  const onConnectRef = useRef(onConnect);
+  const onDisconnectRef = useRef(onDisconnect);
+  const onErrorRef = useRef(onError);
+
+  // Update refs when callbacks change
+  useEffect(() => {
+    onMessageRef.current = onMessage;
+  }, [onMessage]);
+
+  useEffect(() => {
+    onConnectRef.current = onConnect;
+  }, [onConnect]);
+
+  useEffect(() => {
+    onDisconnectRef.current = onDisconnect;
+  }, [onDisconnect]);
+
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
+
   const clearReconnectTimeout = useCallback(() => {
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
@@ -104,7 +127,7 @@ export const useWebSocket = (options: WebSocketHookOptions): WebSocketHookReturn
         reconnectAttemptsRef.current = 0;
         clearReconnectTimeout();
         startPingInterval();
-        onConnect?.();
+        onConnectRef.current?.();
       };
 
       websocket.current.onmessage = (event) => {
@@ -115,7 +138,7 @@ export const useWebSocket = (options: WebSocketHookOptions): WebSocketHookReturn
           }
 
           const message: WebSocketMessage = JSON.parse(event.data);
-          onMessage?.(message);
+          onMessageRef.current?.(message);
         } catch (err) {
           console.error("Failed to parse WebSocket message:", err);
         }
@@ -126,7 +149,7 @@ export const useWebSocket = (options: WebSocketHookOptions): WebSocketHookReturn
         setIsConnected(false);
         setIsConnecting(false);
         clearPingInterval();
-        onDisconnect?.();
+        onDisconnectRef.current?.();
 
         // Auto-reconnect if enabled and not a clean close
         if (autoReconnect && event.code !== 1000 && reconnectAttemptsRef.current < maxReconnectAttempts) {
@@ -147,26 +170,14 @@ export const useWebSocket = (options: WebSocketHookOptions): WebSocketHookReturn
         console.error("WebSocket error:", event);
         setError("WebSocket connection error");
         setIsConnecting(false);
-        onError?.(event);
+        onErrorRef.current?.(event);
       };
     } catch (err) {
       console.error("Failed to create WebSocket connection:", err);
       setError("Failed to create connection");
       setIsConnecting(false);
     }
-  }, [
-    url,
-    onMessage,
-    onConnect,
-    onDisconnect,
-    onError,
-    autoReconnect,
-    reconnectInterval,
-    maxReconnectAttempts,
-    clearReconnectTimeout,
-    startPingInterval,
-    clearPingInterval,
-  ]);
+  }, [url, autoReconnect, reconnectInterval, maxReconnectAttempts, clearReconnectTimeout, startPingInterval, clearPingInterval]);
 
   const disconnect = useCallback(() => {
     clearReconnectTimeout();
@@ -197,7 +208,8 @@ export const useWebSocket = (options: WebSocketHookOptions): WebSocketHookReturn
     return () => {
       disconnect();
     };
-  }, [url, connect, disconnect]); // Include connect and disconnect dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [url]); // Only depend on URL since connect/disconnect are now stable
 
   // Cleanup on unmount
   useEffect(() => {

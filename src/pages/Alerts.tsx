@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { alertsApi } from "@/apis/alerts";
 import { WebSocketMessage, useAlertsWebSocket } from "@/hooks/useWebSocket";
-import { AlertTriangle, Bell, CheckCircle, Clock, Search, Settings, Wifi, WifiOff } from "lucide-react";
+import { AlertTriangle, Bell, CheckCircle, ChevronLeft, ChevronRight, Clock, Search, Settings, Wifi, WifiOff } from "lucide-react";
 import { toast } from "sonner";
 
 import { Alert, AlertStats } from "@/lib/types";
@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -24,25 +25,45 @@ export default function Alerts() {
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [alertRulesModalOpen, setAlertRulesModalOpen] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
 
-  const loadAlerts = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = {
-        limit: 100,
-        ...(selectedStatus !== "all" && { status: selectedStatus }),
-      };
-      const alertsData = await alertsApi.getAlerts(params);
-      setAlerts(alertsData);
-    } catch (error) {
-      console.error("Failed to load alerts:", error);
-      toast.error("Failed to load alerts");
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedStatus]);
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [totalAlerts, setTotalAlerts] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+
+  const loadAlerts = useCallback(
+    async (page: number = 1, size: number = 25) => {
+      try {
+        setLoading(true);
+        const skip = (page - 1) * size;
+        const params = {
+          skip,
+          limit: size,
+          ...(selectedStatus !== "all" && { status: selectedStatus }),
+        };
+        const alertsData = await alertsApi.getAlerts(params);
+        setAlerts(alertsData);
+
+        // Check if there are more results by requesting one extra item
+        const checkParams = { ...params, limit: size + 1 };
+        const checkData = await alertsApi.getAlerts(checkParams);
+        setHasMore(checkData.length > size);
+
+        // Update total count estimation
+        if (page === 1) {
+          setTotalAlerts(checkData.length > size ? size + 1 : alertsData.length);
+        }
+      } catch (error) {
+        console.error("Failed to load alerts:", error);
+        toast.error("Failed to load alerts");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [selectedStatus]
+  );
 
   const loadAlertStats = useCallback(async () => {
     try {
@@ -56,9 +77,17 @@ export default function Alerts() {
 
   // Load data on mount and when status filter changes
   useEffect(() => {
-    loadAlerts();
+    setCurrentPage(1); // Reset to first page when filter changes
+    loadAlerts(1, pageSize);
     loadAlertStats();
-  }, [loadAlerts, loadAlertStats]);
+  }, [loadAlerts, loadAlertStats, selectedStatus, pageSize]);
+
+  // Load data when page changes
+  useEffect(() => {
+    if (currentPage > 1) {
+      loadAlerts(currentPage, pageSize);
+    }
+  }, [currentPage, loadAlerts, pageSize]);
 
   // Handle WebSocket messages for real-time updates
   const handleWebSocketMessage = useCallback(
@@ -73,15 +102,13 @@ export default function Alerts() {
 
         case "new_alert":
           if (message.data) {
-            // Add new alert to the list if it matches current filter
+            // Refresh current page to show updated data
+            loadAlerts(currentPage, pageSize);
+
+            // Refresh stats - call the API directly to avoid dependency issues
+            alertsApi.getAlertStats().then(setAlertStats).catch(console.error);
+
             const newAlert = message.data as Alert;
-            if (selectedStatus === "all" || newAlert.status === selectedStatus) {
-              setAlerts((prev) => [newAlert, ...prev]);
-            }
-
-            // Refresh stats
-            loadAlertStats();
-
             // Show notification for new alerts
             if (newAlert.severity === "critical" || newAlert.severity === "high") {
               toast.error(`New ${newAlert.severity} alert: ${newAlert.title}`, {
@@ -99,20 +126,19 @@ export default function Alerts() {
 
         case "alert_updated":
           if (message.data) {
-            const updatedAlert = message.data as Alert;
-            setAlerts((prev) => prev.map((alert) => (alert.alert_id === updatedAlert.alert_id ? updatedAlert : alert)));
-            loadAlertStats();
+            // Refresh current page to show updated data
+            loadAlerts(currentPage, pageSize);
+            alertsApi.getAlertStats().then(setAlertStats).catch(console.error);
           }
           break;
 
         case "alert_resolved":
           if (message.data) {
-            const resolvedAlert = message.data as Alert;
-            setAlerts((prev) =>
-              prev.map((alert) => (alert.alert_id === resolvedAlert.alert_id ? { ...alert, status: "resolved", resolved_at: new Date().toISOString() } : alert))
-            );
-            loadAlertStats();
+            // Refresh current page to show updated data
+            loadAlerts(currentPage, pageSize);
+            alertsApi.getAlertStats().then(setAlertStats).catch(console.error);
 
+            const resolvedAlert = message.data as Alert;
             toast.success(`Alert resolved: ${resolvedAlert.title}`, {
               description: `ATM ${resolvedAlert.atm_id}`,
               duration: 2000,
@@ -126,20 +152,16 @@ export default function Alerts() {
 
       setLastUpdate(new Date().toISOString());
     },
-    [selectedStatus, loadAlertStats]
+    [currentPage, pageSize, loadAlerts]
   );
 
   // Setup WebSocket connection
-  const { isConnected: wsConnected } = useAlertsWebSocket(handleWebSocketMessage);
-
-  useEffect(() => {
-    setIsConnected(wsConnected);
-  }, [wsConnected]);
+  const { isConnected } = useAlertsWebSocket(handleWebSocketMessage);
 
   const handleAcknowledgeAlert = async (alertId: string) => {
     try {
       await alertsApi.acknowledgeAlert(alertId);
-      await loadAlerts();
+      await loadAlerts(currentPage, pageSize);
       await loadAlertStats();
       toast.success("Alert acknowledged");
     } catch (error) {
@@ -151,7 +173,7 @@ export default function Alerts() {
   const handleResolveAlert = async (alertId: string) => {
     try {
       await alertsApi.resolveAlert(alertId);
-      await loadAlerts();
+      await loadAlerts(currentPage, pageSize);
       await loadAlertStats();
       toast.success("Alert resolved");
     } catch (error) {
@@ -374,67 +396,125 @@ export default function Alerts() {
                 <div className="text-muted-foreground">Loading alerts...</div>
               </div>
             ) : (
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Time</TableHead>
-                      <TableHead>ATM ID</TableHead>
-                      <TableHead>Alert</TableHead>
-                      <TableHead>Severity</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredAlerts.length === 0 ? (
+              <>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
-                          {loading ? "Loading alerts..." : selectedStatus === "all" ? "No alerts found" : `No ${selectedStatus} alerts found`}
-                        </TableCell>
+                        <TableHead>Time</TableHead>
+                        <TableHead>ATM ID</TableHead>
+                        <TableHead>Alert</TableHead>
+                        <TableHead>Severity</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
-                    ) : (
-                      filteredAlerts.map((alert) => (
-                        <TableRow key={alert.alert_id} className="group hover:bg-muted/50">
-                          <TableCell className="font-mono text-sm">{formatTimestamp(alert.triggered_at)}</TableCell>
-                          <TableCell className="font-medium">{alert.atm_id}</TableCell>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{alert.title}</div>
-                              <div className="text-sm text-muted-foreground">{alert.message}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>{getSeverityBadge(alert.severity)}</TableCell>
-                          <TableCell>{getStatusBadge(alert.status)}</TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              {alert.status === "active" && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleAcknowledgeAlert(alert.alert_id)}
-                                  className="opacity-0 transition-opacity group-hover:opacity-100"
-                                >
-                                  Acknowledge
-                                </Button>
-                              )}
-                              {(alert.status === "active" || alert.status === "acknowledged") && (
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleResolveAlert(alert.alert_id)}
-                                  className="opacity-0 transition-opacity group-hover:opacity-100"
-                                >
-                                  Resolve
-                                </Button>
-                              )}
-                            </div>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredAlerts.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                            {loading ? "Loading alerts..." : selectedStatus === "all" ? "No alerts found" : `No ${selectedStatus} alerts found`}
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
+                      ) : (
+                        filteredAlerts.map((alert) => (
+                          <TableRow key={alert.alert_id} className="group hover:bg-muted/50">
+                            <TableCell className="font-mono text-sm">{formatTimestamp(alert.triggered_at)}</TableCell>
+                            <TableCell className="font-medium">{alert.atm_id}</TableCell>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">{alert.title}</div>
+                                <div className="text-sm text-muted-foreground">{alert.message}</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>{getSeverityBadge(alert.severity)}</TableCell>
+                            <TableCell>{getStatusBadge(alert.status)}</TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                {alert.status === "active" && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleAcknowledgeAlert(alert.alert_id)}
+                                    className="opacity-0 transition-opacity group-hover:opacity-100"
+                                  >
+                                    Acknowledge
+                                  </Button>
+                                )}
+                                {(alert.status === "active" || alert.status === "acknowledged") && (
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleResolveAlert(alert.alert_id)}
+                                    className="opacity-0 transition-opacity group-hover:opacity-100"
+                                  >
+                                    Resolve
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Pagination Controls */}
+                <div className="flex items-center justify-between pt-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Rows per page:</span>
+                    <Select
+                      value={pageSize.toString()}
+                      onValueChange={(value) => {
+                        const newPageSize = parseInt(value);
+                        setPageSize(newPageSize);
+                        setCurrentPage(1);
+                        loadAlerts(1, newPageSize);
+                      }}
+                    >
+                      <SelectTrigger className="w-20">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">
+                      Page {currentPage} {hasMore && "of many"}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setCurrentPage(currentPage - 1);
+                        }}
+                        disabled={currentPage === 1 || loading}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Previous
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setCurrentPage(currentPage + 1);
+                        }}
+                        disabled={!hasMore || loading}
+                      >
+                        Next
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
