@@ -286,19 +286,19 @@ function AtmDetailContent({ atmId }) {
                     <span className="text-muted-foreground">Loading telemetry data...</span>
                   </div>
                 ) : latestTelemetry ? (
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {/* Operational Status */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 p-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-muted-foreground">Operational Status</span>
                         <Activity className="h-4 w-4 text-muted-foreground" />
                       </div>
-                      <div className={`text-lg font-bold ${getStatusColor(latestTelemetry.status)}`}>{latestTelemetry.status}</div>
+                      <div className={`text-lg font-bold capitalize ${getStatusColor(latestTelemetry.status)}`}>{latestTelemetry.status}</div>
                       <div className="text-xs text-muted-foreground">{new Date(latestTelemetry.time).toLocaleString()}</div>
                     </div>
 
                     {/* Cash Level */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 p-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-muted-foreground">Cash Level</span>
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -313,7 +313,7 @@ function AtmDetailContent({ atmId }) {
                     </div>
 
                     {/* Temperature */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 p-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-muted-foreground">Temperature</span>
                         <Thermometer className="h-4 w-4 text-muted-foreground" />
@@ -327,7 +327,7 @@ function AtmDetailContent({ atmId }) {
                     </div>
 
                     {/* CPU Usage */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 p-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-muted-foreground">CPU Usage</span>
                         <Cpu className="h-4 w-4 text-muted-foreground" />
@@ -342,7 +342,7 @@ function AtmDetailContent({ atmId }) {
                     </div>
 
                     {/* Memory Usage */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 p-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-muted-foreground">Memory Usage</span>
                         <HardDrive className="h-4 w-4 text-muted-foreground" />
@@ -352,12 +352,12 @@ function AtmDetailContent({ atmId }) {
                     </div>
 
                     {/* Network Status */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 p-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-muted-foreground">Network</span>
                         <Wifi className="h-4 w-4 text-muted-foreground" />
                       </div>
-                      <div className={`text-lg font-bold ${getNetworkStatusColor(latestTelemetry.network_status || "unknown")}`}>
+                      <div className={`text-lg font-bold capitalize ${getNetworkStatusColor(latestTelemetry.network_status || "unknown")}`}>
                         {latestTelemetry.network_status || "unknown"}
                       </div>
                       {latestTelemetry.network_latency_ms && <div className="text-sm text-muted-foreground">{latestTelemetry.network_latency_ms}ms</div>}
