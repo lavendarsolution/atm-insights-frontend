@@ -79,17 +79,6 @@ export function AppHeader() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator className="bg-gray-200" />
-            <DropdownMenuGroup>
-              <DropdownMenuItem className="text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">
-                <HelpCircle className="mr-2 h-4 w-4" />
-                <span>Help & Support</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">
-                <MessageSquare className="mr-2 h-4 w-4" />
-                <span>Feedback</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator className="bg-gray-200" />
             <DropdownMenuItem onClick={() => logout()} className="text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>

@@ -18,6 +18,7 @@ import Settings from "./pages/Settings";
 import PageAtms from "./pages/atms/PageAtms";
 import Login from "./pages/auth/Login";
 import { AppProvider } from "./providers/AppProvider";
+import { RealtimeDashboardProvider } from "./providers/RealtimeDashboardProvider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,6 +28,9 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Wrapper component for dashboard pages that need real-time data
+const DashboardWithRealtime = ({ children }: { children: React.ReactNode }) => <RealtimeDashboardProvider>{children}</RealtimeDashboardProvider>;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -45,11 +49,23 @@ const App = () => (
                 </ProtectedRoute>
               }
             >
-              <Route path="/dashboard" element={<Dashboard />} />
+              {/* Dashboard route with real-time provider */}
+              <Route
+                path="/dashboard"
+                element={
+                  <DashboardWithRealtime>
+                    <Dashboard />
+                  </DashboardWithRealtime>
+                }
+              />
+
+              {/* ATM routes - PageAtms now has its own real-time provider */}
               <Route path="/atms" element={<PageAtms />} />
               <Route path="/atm/add" element={<AddATM />} />
               <Route path="/atm/:atmId" element={<ATMDetail />} />
               <Route path="/atm/:atmId/edit" element={<EditATM />} />
+
+              {/* Other routes */}
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/alerts" element={<Alerts />} />
               <Route path="/settings" element={<Settings />} />
