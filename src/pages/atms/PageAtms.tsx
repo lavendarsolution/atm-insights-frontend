@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useATMData, useDeleteAtmByIdMutation } from "@/features/atms/hooks";
-import { ATM } from "@/features/atms/schema";
+import { ATM, regionEnum } from "@/features/atms/schema";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQueryParams } from "@/hooks/useQueryParams";
 import { RealtimeATMsProvider, useRealtimeATMs } from "@/providers/RealtimeATMsProvider";
@@ -62,6 +62,7 @@ function ATMsListContent() {
   // Initialize filters from URL params
   const [searchTerm, setSearchTerm] = useState(queryParams.search || "");
   const [statusFilter, setStatusFilter] = useState(queryParams.status || "all");
+  const [regionFilter, setRegionFilter] = useState(queryParams.region || "all");
 
   // Debounce search term to avoid too many API calls
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -78,6 +79,7 @@ function ATMsListContent() {
     limit: pagination.pageSize,
     search: debouncedSearchTerm || undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
+    region: regionFilter !== "all" ? regionFilter : undefined,
   };
 
   // Fetch ATM data
@@ -107,6 +109,11 @@ function ATMsListContent() {
       {
         accessorKey: "location_address",
         header: "Location",
+      },
+      {
+        accessorKey: "region",
+        header: "Region",
+        cell: ({ row }) => <Badge variant="outline">{row.original.region}</Badge>,
       },
       {
         accessorKey: "model",
@@ -214,9 +221,12 @@ function ATMsListContent() {
     if (statusFilter !== "all") {
       newFilters.status = statusFilter;
     }
+    if (regionFilter !== "all") {
+      newFilters.region = regionFilter;
+    }
 
     updateQueryParams(newFilters);
-  }, [pagination, debouncedSearchTerm, statusFilter, updateQueryParams, queryParams]);
+  }, [pagination, debouncedSearchTerm, statusFilter, regionFilter, updateQueryParams, queryParams]);
 
   // Reset to first page when search term changes
   useEffect(() => {
@@ -228,6 +238,11 @@ function ATMsListContent() {
   // Handle filter changes
   const handleStatusFilterChange = (value: string) => {
     setStatusFilter(value);
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  };
+
+  const handleRegionFilterChange = (value: string) => {
+    setRegionFilter(value);
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   };
 
@@ -316,6 +331,19 @@ function ATMsListContent() {
                 <SelectItem value="maintenance">Maintenance</SelectItem>
                 <SelectItem value="decommissioned">Decommissioned</SelectItem>
                 <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={regionFilter} onValueChange={handleRegionFilterChange}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="All Regions" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Regions</SelectItem>
+                {regionEnum.options.map((region) => (
+                  <SelectItem key={region} value={region}>
+                    {region.charAt(0).toUpperCase() + region.slice(1).toLowerCase()}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

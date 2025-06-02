@@ -16,6 +16,7 @@ export interface ATMQueryParams {
   pageSize?: number;
   search?: string;
   status?: string;
+  region?: string;
   manufacturer?: string;
 }
 

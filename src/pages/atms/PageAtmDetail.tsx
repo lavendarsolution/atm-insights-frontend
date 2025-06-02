@@ -241,6 +241,11 @@ function AtmDetailContent({ atmId }) {
                 </div>
 
                 <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Region</div>
+                  <Badge variant="outline">{atm.region}</Badge>
+                </div>
+
+                <div className="space-y-2">
                   <div className="text-sm font-medium text-muted-foreground">Model</div>
                   <div>{atm.model}</div>
                 </div>

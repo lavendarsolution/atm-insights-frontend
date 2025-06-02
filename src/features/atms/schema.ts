@@ -3,9 +3,13 @@ import { z } from "zod";
 export const atmStatusEnum = z.enum(["active", "inactive", "warning", "error"]);
 export type ATMStatus = z.infer<typeof atmStatusEnum>;
 
+export const regionEnum = z.enum(["AIRPORT", "SUPERMARKET", "MALL", "HOSPITAL", "UNIVERSITY"]);
+export type ATMRegion = z.infer<typeof regionEnum>;
+
 export const atmBaseSchema = z.object({
   name: z.string().min(1, "ATM name is required").max(100, "Name too long"),
   location_address: z.string().optional().nullable(),
+  region: regionEnum,
   model: z.string().max(50).optional().nullable(),
   manufacturer: z.string().max(50).optional().nullable(),
 });
@@ -23,6 +27,7 @@ export const atmCreateSchema = atmBaseSchema.extend({
 export const atmUpdateSchema = z.object({
   name: z.string().min(1, "ATM name cannot be empty").max(100).optional(),
   location_address: z.string().optional().nullable(),
+  region: regionEnum.optional(),
   model: z.string().max(50).optional().nullable(),
   manufacturer: z.string().max(50).optional().nullable(),
   status: atmStatusEnum.optional(),

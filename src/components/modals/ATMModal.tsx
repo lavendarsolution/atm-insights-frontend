@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 import { useAtmById, useCreateATM, useUpdateATM } from "@/features/atms/hooks";
-import { ATMCreate, ATMStatus, ATMUpdate, atmCreateSchema, atmStatusEnum, atmUpdateSchema } from "@/features/atms/schema";
+import { ATMCreate, ATMRegion, ATMStatus, ATMUpdate, atmCreateSchema, atmStatusEnum, atmUpdateSchema, regionEnum } from "@/features/atms/schema";
 import { useNotification } from "@/hooks/use-notification";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
@@ -38,6 +38,7 @@ export function ATMModal({ open, onOpenChange, mode, atmId }: ATMModalProps) {
       ? {
           name: "",
           location_address: "",
+          region: "AIRPORT" as ATMRegion,
           model: "",
           manufacturer: "",
           status: "active" as ATMStatus,
@@ -46,6 +47,7 @@ export function ATMModal({ open, onOpenChange, mode, atmId }: ATMModalProps) {
           atm_id: "",
           name: "",
           location_address: "",
+          region: "AIRPORT" as ATMRegion,
           model: "",
           manufacturer: "",
           status: "active" as ATMStatus,
@@ -58,6 +60,7 @@ export function ATMModal({ open, onOpenChange, mode, atmId }: ATMModalProps) {
       form.reset({
         name: atmData.name,
         location_address: atmData.location_address || "",
+        region: atmData.region,
         model: atmData.model || "",
         manufacturer: atmData.manufacturer || "",
         status: atmData.status,
@@ -66,6 +69,7 @@ export function ATMModal({ open, onOpenChange, mode, atmId }: ATMModalProps) {
       form.reset({
         name: "",
         location_address: "",
+        region: "AIRPORT" as ATMRegion,
         model: "",
         manufacturer: "",
         status: "active" as ATMStatus,
@@ -159,6 +163,31 @@ export function ATMModal({ open, onOpenChange, mode, atmId }: ATMModalProps) {
                     <FormControl>
                       <Input placeholder="e.g., 123 Main Street, Downtown, City Center" {...field} value={field.value || ""} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="region"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Region *</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a region" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {regionEnum.options.map((region) => (
+                          <SelectItem key={region} value={region}>
+                            {region.charAt(0).toUpperCase() + region.slice(1).toLowerCase()}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
