@@ -121,8 +121,8 @@ function AtmDetailContent({ atmId }) {
     // Deduct for performance issues
     if (latestTelemetry.cpu_usage_percent && latestTelemetry.cpu_usage_percent > 80) score -= 15;
     if (latestTelemetry.memory_usage_percent && latestTelemetry.memory_usage_percent > 85) score -= 15;
-    if (latestTelemetry.temperature_celsius && latestTelemetry.temperature_celsius > 35) score -= 10;
-    if (latestTelemetry.cash_level_percent && latestTelemetry.cash_level_percent < 20) score -= 10;
+    if (latestTelemetry.temperature_celsius && latestTelemetry.temperature_celsius > 38) score -= 10;
+    if (latestTelemetry.cash_level_percent && latestTelemetry.cash_level_percent < 12) score -= 10;
 
     // Deduct for network issues
     if (latestTelemetry.network_status === "disconnected") score -= 25;
@@ -310,7 +310,7 @@ function AtmDetailContent({ atmId }) {
                       </div>
                       <div className="text-lg font-bold">{latestTelemetry.cash_level_percent || 0}%</div>
                       <Progress value={latestTelemetry.cash_level_percent || 0} className="h-2" />
-                      {latestTelemetry.cash_level_percent && latestTelemetry.cash_level_percent < 20 && (
+                      {latestTelemetry.cash_level_percent && latestTelemetry.cash_level_percent < 12 && (
                         <Badge variant="destructive" className="text-xs">
                           Low Cash
                         </Badge>
@@ -324,7 +324,7 @@ function AtmDetailContent({ atmId }) {
                         <Thermometer className="h-4 w-4 text-muted-foreground" />
                       </div>
                       <div className="text-lg font-bold">{latestTelemetry.temperature_celsius || 0}°C</div>
-                      {latestTelemetry.temperature_celsius && latestTelemetry.temperature_celsius > 35 && (
+                      {latestTelemetry.temperature_celsius && latestTelemetry.temperature_celsius > 38 && (
                         <Badge variant="destructive" className="text-xs">
                           High Temperature
                         </Badge>
@@ -339,7 +339,7 @@ function AtmDetailContent({ atmId }) {
                       </div>
                       <div className="text-lg font-bold">{latestTelemetry.cpu_usage_percent || 0}%</div>
                       <Progress value={latestTelemetry.cpu_usage_percent || 0} className="h-2" />
-                      {latestTelemetry.cpu_usage_percent && latestTelemetry.cpu_usage_percent > 80 && (
+                      {latestTelemetry.cpu_usage_percent && latestTelemetry.cpu_usage_percent > 85 && (
                         <Badge variant="secondary" className="text-xs">
                           High Usage
                         </Badge>
@@ -474,13 +474,13 @@ function AtmDetailContent({ atmId }) {
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <span>{telemetry.cash_level_percent || 0}%</span>
-                              {telemetry.cash_level_percent && telemetry.cash_level_percent < 20 && <AlertTriangle className="h-3 w-3 text-red-500" />}
+                              {telemetry.cash_level_percent && telemetry.cash_level_percent < 12 && <AlertTriangle className="h-3 w-3 text-red-500" />}
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <span>{telemetry.temperature_celsius || 0}°C</span>
-                              {telemetry.temperature_celsius && telemetry.temperature_celsius > 35 && <AlertTriangle className="h-3 w-3 text-red-500" />}
+                              {telemetry.temperature_celsius && telemetry.temperature_celsius > 38 && <AlertTriangle className="h-3 w-3 text-red-500" />}
                             </div>
                           </TableCell>
                           <TableCell>{telemetry.cpu_usage_percent || 0}%</TableCell>
@@ -642,22 +642,22 @@ function AtmDetailContent({ atmId }) {
                 <div className="space-y-3 pt-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Operational Status</span>
-                    <Badge variant={latestTelemetry?.status === "online" ? "default" : "destructive"}>
+                    <Badge variant={latestTelemetry?.status === "online" ? "active" : "critical"}>
                       {latestTelemetry?.status === "online" ? "Good" : "Issues"}
                     </Badge>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Performance</span>
-                    <Badge variant={latestTelemetry?.cpu_usage_percent && latestTelemetry.cpu_usage_percent > 80 ? "destructive" : "default"}>
-                      {latestTelemetry?.cpu_usage_percent && latestTelemetry.cpu_usage_percent > 80 ? "Poor" : "Good"}
+                    <Badge variant={latestTelemetry?.cpu_usage_percent && latestTelemetry.cpu_usage_percent > 85 ? "critical" : "active"}>
+                      {latestTelemetry?.cpu_usage_percent && latestTelemetry.cpu_usage_percent > 85 ? "Poor" : "Good"}
                     </Badge>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Cash Level</span>
-                    <Badge variant={latestTelemetry?.cash_level_percent && latestTelemetry.cash_level_percent < 20 ? "destructive" : "default"}>
-                      {latestTelemetry?.cash_level_percent && latestTelemetry.cash_level_percent < 20 ? "Low" : "Normal"}
+                    <Badge variant={latestTelemetry?.cash_level_percent && latestTelemetry.cash_level_percent < 12 ? "warning" : "active"}>
+                      {latestTelemetry?.cash_level_percent && latestTelemetry.cash_level_percent < 12 ? "Low" : "Normal"}
                     </Badge>
                   </div>
 
@@ -665,11 +665,7 @@ function AtmDetailContent({ atmId }) {
                     <span className="text-sm">Network</span>
                     <Badge
                       variant={
-                        latestTelemetry?.network_status === "disconnected"
-                          ? "destructive"
-                          : latestTelemetry?.network_status === "unstable"
-                            ? "secondary"
-                            : "default"
+                        latestTelemetry?.network_status === "disconnected" ? "critical" : latestTelemetry?.network_status === "unstable" ? "warning" : "active"
                       }
                     >
                       {latestTelemetry?.network_status === "connected" ? "Good" : latestTelemetry?.network_status === "unstable" ? "Unstable" : "Poor"}

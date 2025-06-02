@@ -156,7 +156,7 @@ export const RealtimeATMProvider: React.FC<RealtimeATMProviderProps> = ({ childr
               description: `ATM ${atmId}`,
               duration: 5000,
             });
-          } else if (message.data.cash_level_percent !== undefined && message.data.cash_level_percent < 20) {
+          } else if (message.data.cash_level_percent !== undefined && message.data.cash_level_percent < 12) {
             toast.warning(`Low cash level: ${message.data.cash_level_percent}%`, {
               description: `ATM ${atmId}`,
               duration: 4000,

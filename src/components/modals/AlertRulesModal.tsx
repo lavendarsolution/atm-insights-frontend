@@ -37,89 +37,89 @@ const ruleIcons = {
 };
 
 const severityColors = {
-  critical: "destructive",
-  high: "destructive",
-  medium: "secondary",
-  low: "outline",
+  critical: "critical",
+  high: "high",
+  medium: "medium",
+  low: "low",
 } as const;
 
 const getSeverityBadge = (severity: string) => {
   return <Badge variant={severityColors[severity as keyof typeof severityColors] || "outline"}>{severity.toUpperCase()}</Badge>;
 };
 
+// Mock data for pre-defined alert rules (moved outside component)
+const mockAlertRules: AlertRule[] = [
+  {
+    rule_type: "LOW_CASH",
+    name: "Low Cash Level",
+    description: "Alert when ATM cash level falls below threshold",
+    severity: "high",
+    threshold: 12.0,
+    condition_description: "Cash level below 12% of capacity",
+    is_active: true,
+    notification_channels: ["email", "telegram"],
+    cooldown_minutes: 240,
+  },
+  {
+    rule_type: "HIGH_TRANSACTION_FAILURES",
+    name: "High Transaction Failure Rate",
+    description: "Alert when transaction failure rate exceeds threshold",
+    severity: "medium",
+    threshold: 10.0,
+    condition_description: "Transaction failure rate above 10%",
+    is_active: true,
+    notification_channels: ["email"],
+    cooldown_minutes: 60,
+  },
+  {
+    rule_type: "NETWORK_ISSUES",
+    name: "Network Connectivity Issues",
+    description: "Alert when ATM experiences network connectivity problems",
+    severity: "high",
+    threshold: 3.0,
+    condition_description: "Network connection failures detected",
+    is_active: true,
+    notification_channels: ["email", "telegram"],
+    cooldown_minutes: 90,
+  },
+  {
+    rule_type: "HARDWARE_MALFUNCTION",
+    name: "Hardware Malfunction",
+    description: "Alert when hardware components are malfunctioning",
+    severity: "high",
+    threshold: 1.0,
+    condition_description: "Hardware component malfunction detected",
+    is_active: true,
+    notification_channels: ["email", "telegram"],
+    cooldown_minutes: 120,
+  },
+  {
+    rule_type: "MAINTENANCE_DUE",
+    name: "Maintenance Due",
+    description: "Alert when ATM maintenance is due or overdue",
+    severity: "medium",
+    threshold: 0.0,
+    condition_description: "Scheduled maintenance is due",
+    is_active: true,
+    notification_channels: ["email"],
+    cooldown_minutes: 1440,
+  },
+  {
+    rule_type: "UNUSUAL_ACTIVITY",
+    name: "Unusual Activity Detected",
+    description: "Alert when unusual transaction patterns are detected",
+    severity: "medium",
+    threshold: 2.0,
+    condition_description: "Transaction patterns deviate significantly from normal",
+    is_active: true,
+    notification_channels: ["email"],
+    cooldown_minutes: 120,
+  },
+];
+
 export default function AlertRulesModal({ open, onOpenChange }: AlertRulesModalProps) {
   const [alertRules, setAlertRules] = useState<AlertRule[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Mock data for pre-defined alert rules
-  const mockAlertRules: AlertRule[] = [
-    {
-      rule_type: "LOW_CASH",
-      name: "Low Cash Level",
-      description: "Alert when ATM cash level falls below threshold",
-      severity: "high",
-      threshold: 20.0,
-      condition_description: "Cash level below 20% of capacity",
-      is_active: true,
-      notification_channels: ["email", "telegram"],
-      cooldown_minutes: 60,
-    },
-    {
-      rule_type: "HIGH_TRANSACTION_FAILURES",
-      name: "High Transaction Failure Rate",
-      description: "Alert when transaction failure rate exceeds threshold",
-      severity: "medium",
-      threshold: 10.0,
-      condition_description: "Transaction failure rate above 10%",
-      is_active: true,
-      notification_channels: ["email"],
-      cooldown_minutes: 30,
-    },
-    {
-      rule_type: "NETWORK_ISSUES",
-      name: "Network Connectivity Issues",
-      description: "Alert when ATM experiences network connectivity problems",
-      severity: "high",
-      threshold: 3.0,
-      condition_description: "Network connection failures detected",
-      is_active: true,
-      notification_channels: ["email", "telegram"],
-      cooldown_minutes: 15,
-    },
-    {
-      rule_type: "HARDWARE_MALFUNCTION",
-      name: "Hardware Malfunction",
-      description: "Alert when hardware components are malfunctioning",
-      severity: "critical",
-      threshold: 1.0,
-      condition_description: "Hardware component malfunction detected",
-      is_active: true,
-      notification_channels: ["email", "telegram"],
-      cooldown_minutes: 5,
-    },
-    {
-      rule_type: "MAINTENANCE_DUE",
-      name: "Maintenance Due",
-      description: "Alert when ATM maintenance is due or overdue",
-      severity: "medium",
-      threshold: 0.0,
-      condition_description: "Scheduled maintenance is due",
-      is_active: true,
-      notification_channels: ["email"],
-      cooldown_minutes: 1440,
-    },
-    {
-      rule_type: "UNUSUAL_ACTIVITY",
-      name: "Unusual Activity Detected",
-      description: "Alert when unusual transaction patterns are detected",
-      severity: "medium",
-      threshold: 2.0,
-      condition_description: "Transaction patterns deviate significantly from normal",
-      is_active: true,
-      notification_channels: ["email"],
-      cooldown_minutes: 120,
-    },
-  ];
 
   useEffect(() => {
     if (open) {
@@ -168,7 +168,7 @@ export default function AlertRulesModal({ open, onOpenChange }: AlertRulesModalP
                         </div>
                         <div className="flex items-center gap-2">
                           {getSeverityBadge(rule.severity)}
-                          <Badge variant={rule.is_active ? "default" : "secondary"}>{rule.is_active ? "Active" : "Inactive"}</Badge>
+                          <Badge variant={rule.is_active ? "active" : "resolved"}>{rule.is_active ? "Active" : "Inactive"}</Badge>
                         </div>
                       </div>
                     </CardHeader>

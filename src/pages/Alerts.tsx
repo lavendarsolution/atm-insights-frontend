@@ -210,10 +210,10 @@ export default function Alerts() {
 
   const getSeverityBadge = (severity: string) => {
     const variants = {
-      critical: "destructive",
-      high: "destructive",
-      medium: "default",
-      low: "secondary",
+      critical: "critical",
+      high: "high",
+      medium: "medium",
+      low: "low",
     } as const;
 
     return <Badge variant={variants[severity as keyof typeof variants] || "default"}>{severity.toUpperCase()}</Badge>;
@@ -221,9 +221,9 @@ export default function Alerts() {
 
   const getStatusBadge = (status: string) => {
     const variants = {
-      active: "destructive",
-      acknowledged: "default",
-      resolved: "secondary",
+      active: "active",
+      acknowledged: "acknowledged",
+      resolved: "resolved",
     } as const;
 
     const icons = {

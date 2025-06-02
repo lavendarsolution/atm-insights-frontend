@@ -47,15 +47,17 @@ export default function Dashboard() {
   const getAlertSeverityColor = (severity: string) => {
     switch (severity) {
       case "critical":
-        return "destructive";
+        return "critical";
       case "high":
-        return "destructive";
+        return "high";
       case "error":
-        return "destructive";
+        return "critical";
       case "medium":
-        return "secondary";
+        return "medium";
       case "warning":
-        return "secondary";
+        return "warning";
+      case "low":
+        return "low";
       default:
         return "outline";
     }

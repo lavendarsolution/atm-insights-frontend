@@ -15,6 +15,17 @@ const badgeVariants = cva(
         outline: "text-foreground",
         success: "border-transparent bg-green-100 text-green-900 hover:bg-green-100",
         danger: "border-transparent bg-red-100 text-red-900 hover:bg-red-100",
+        // New color variants for severity and status
+        critical: "border-transparent bg-red-600 text-white hover:bg-red-700",
+        high: "border-transparent bg-orange-500 text-white hover:bg-orange-600",
+        medium: "border-transparent bg-yellow-500 text-white hover:bg-yellow-600",
+        low: "border-transparent bg-blue-500 text-white hover:bg-blue-600",
+        // Status variants
+        active: "border-transparent bg-green-500 text-white hover:bg-green-600",
+        acknowledged: "border-transparent bg-purple-500 text-white hover:bg-purple-600",
+        resolved: "border-transparent bg-gray-800 text-white hover:bg-gray-900",
+        warning: "border-transparent bg-amber-400 text-white hover:bg-amber-500",
+        info: "border-transparent bg-cyan-500 text-white hover:bg-cyan-600",
       },
     },
     defaultVariants: {
