@@ -48,14 +48,9 @@ export default function Login() {
 
       <div className="relative z-10 w-full max-w-md space-y-3">
         {/* Header */}
-        <div className="text-center">
-          <div className="flex justify-center">
-            <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue-600 shadow-lg shadow-primary/25">
-              <span className="text-4xl font-bold text-primary-foreground">A</span>
-            </div>
-          </div>
-          <h1 className="mb-2 text-3xl font-bold text-foreground">ATM Insights</h1>
-          <p className="text-base text-muted-foreground">Real-Time ATM Monitoring</p>
+        <div className="flex flex-col items-center justify-center text-center">
+          <img src="/assets/logo-green-v.png" className="w-[320px]" />
+          <p className="text-base text-muted-foreground">Real-time ATM transaction monitoring and fraud detection system</p>
         </div>
 
         {/* Login Form */}

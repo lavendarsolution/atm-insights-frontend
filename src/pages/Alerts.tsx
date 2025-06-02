@@ -24,7 +24,7 @@ export default function Alerts() {
   return (
     <PageContainer>
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Alerts</h1>
+        <h1>Alerts</h1>
         <p className="text-muted-foreground">Monitor and manage alerts from your ATM network</p>
       </div>
 

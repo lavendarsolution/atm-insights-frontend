@@ -201,7 +201,7 @@ export const RealtimeDashboardProvider: React.FC<RealtimeDashboardProviderProps>
           });
 
           // Show status change notification
-          const statusChangeMessage = `ATM ${message.data.atm_id} changed from ${message.data.old_status} to ${message.data.new_status}`;
+          const statusChangeMessage = `${message.data.atm_id} changed from ${message.data.old_status} to ${message.data.new_status}`;
           if (message.data.new_status === "error") {
             toast.error(statusChangeMessage, {
               description: "ATM requires attention",

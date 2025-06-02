@@ -247,7 +247,7 @@ function ATMsListContent() {
     <PageContainer>
       <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">ATM Management</h1>
+          <h1>ATM Management</h1>
           <div className="flex items-center gap-4 text-muted-foreground">
             <span>Monitor and manage your ATMs in real-time. View status updates, add new ATMs, and filter by region or status.</span>
             {/* Real-time connection status */}

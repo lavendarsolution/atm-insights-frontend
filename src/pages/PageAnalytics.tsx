@@ -68,7 +68,7 @@ export default function PageAnalytics() {
   return (
     <PageContainer>
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
+        <h1>Analytics</h1>
         <p className="text-muted-foreground">Analyze and visualize your ATM network data</p>
       </div>
 

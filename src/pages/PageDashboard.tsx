@@ -65,14 +65,13 @@ export default function Dashboard() {
 
   return (
     <PageContainer>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Header with connection and update status */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <h1>Dashboard</h1>
             <div className="flex items-center gap-4 text-muted-foreground">
               <span>Monitor and manage your ATM network</span>
-
               {/* Connection Status */}
               {showConnectionStatus && (
                 <div className="flex items-center gap-1">
@@ -92,7 +91,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {/* Data freshness indicator */}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
@@ -119,7 +118,7 @@ export default function Dashboard() {
 
         {/* Stats Grid */}
         {stats && (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             <StatCard title="Total ATMs" value={stats.total_atms} icon={Activity} description="ATMs in your network" />
             <StatCard
               title="Online ATMs"
@@ -141,7 +140,7 @@ export default function Dashboard() {
 
         {/* Additional Stats Row */}
         {stats && (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Transactions Today</CardTitle>
@@ -210,7 +209,7 @@ export default function Dashboard() {
                       <TableHead>ATM ID</TableHead>
                       <TableHead>Alert</TableHead>
                       <TableHead>Severity</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="text-right"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -227,7 +226,7 @@ export default function Dashboard() {
                           <Badge variant={getAlertSeverityColor(alert.severity)}>{alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1)}</Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="sm" onClick={() => actions.markAlertAsRead(alert.id)}>
+                          <Button variant="ghost" size="xs" onClick={() => actions.markAlertAsRead(alert.id)}>
                             Dismiss
                           </Button>
                         </TableCell>
