@@ -12,7 +12,7 @@ import Alerts from "./pages/Alerts";
 import NotFound from "./pages/NotFound";
 import Analytics from "./pages/PageAnalytics";
 import Dashboard from "./pages/PageDashboard";
-import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
 import PageAtmDetail from "./pages/atms/PageAtmDetail";
 import PageAtms from "./pages/atms/PageAtms";
 import Login from "./pages/auth/Login";
@@ -66,7 +66,7 @@ const App = () => (
                 {/* Other routes */}
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/alerts" element={<Alerts />} />
-                <Route path="/settings" element={<Settings />} />
+                <Route path="/profile" element={<Profile />} />
               </Route>
 
               <Route path="*" element={<NotFound />} />

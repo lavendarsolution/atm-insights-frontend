@@ -1,5 +1,5 @@
 import { useApp } from "@/providers/AppProvider";
-import { Bell, HelpCircle, LogOut, MessageSquare, Search, Settings, User } from "lucide-react";
+import { Bell, HelpCircle, LogOut, MessageSquare, Search, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -66,15 +66,9 @@ export function AppHeader() {
             <DropdownMenuSeparator className="bg-gray-200" />
             <DropdownMenuGroup>
               <DropdownMenuItem asChild className="text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">
-                <Link to="/settings/profile">
+                <Link to="/profile">
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild className="text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">
-                <Link to="/settings">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>

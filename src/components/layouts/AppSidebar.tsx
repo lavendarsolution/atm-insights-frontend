@@ -2,7 +2,7 @@
 
 import { useApp } from "@/providers/AppProvider";
 import clsx from "clsx";
-import { BanknoteArrowDownIcon, BarChart3, BellIcon, ChevronLeft, ChevronRight, LayoutDashboard, MonitorCheckIcon, SettingsIcon } from "lucide-react";
+import { BanknoteArrowDownIcon, BarChart3, BellIcon, ChevronLeft, ChevronRight, LayoutDashboard, MonitorCheckIcon, UserIcon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
@@ -14,7 +14,7 @@ const menuItems = [
   { path: "/atms", label: "ATM Registry", icon: MonitorCheckIcon },
   { path: "/analytics", label: "Analytics", icon: BarChart3 },
   { path: "/alerts", label: "Alerts", icon: BellIcon },
-  { path: "/settings", label: "Settings", icon: SettingsIcon },
+  { path: "/profile", label: "Profile", icon: UserIcon },
 ];
 
 export function AppSidebar() {
