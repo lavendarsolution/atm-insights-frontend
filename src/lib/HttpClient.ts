@@ -10,7 +10,10 @@ const Axios = axios.create({
 Axios.interceptors.request.use(function (config) {
   nprogress.start();
 
-  Axios.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("token")}`;
+  const token = localStorage.getItem("access_token");
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
 
   return config;
 });

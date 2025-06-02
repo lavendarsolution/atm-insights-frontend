@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { notification } from "sonner";
+import { toast } from "sonner";
 
 import env from "@/lib/env";
 
@@ -197,7 +197,7 @@ export const useWebSocket = (options: WebSocketHookOptions): WebSocketHookReturn
     return () => {
       disconnect();
     };
-  }, [url]); // Only reconnect when URL changes
+  }, [url, connect, disconnect]); // Include connect and disconnect dependencies
 
   // Cleanup on unmount
   useEffect(() => {
@@ -256,6 +256,25 @@ export const useATMDetailWebSocket = (atmId: string, onMessage?: (message: WebSo
     },
     onError: (error) => {
       console.error(`ATM detail WebSocket error for ${atmId}:`, error);
+    },
+  });
+};
+
+export const useAlertsWebSocket = (onMessage?: (message: WebSocketMessage) => void) => {
+  const baseUrl = env.BACKEND_URL;
+  const wsUrl = `${baseUrl.replace(/^http/, "ws")}/api/v1/ws/alerts`;
+
+  return useWebSocket({
+    url: wsUrl,
+    onMessage,
+    onConnect: () => {
+      console.log("Alerts WebSocket connected");
+    },
+    onDisconnect: () => {
+      console.log("Alerts WebSocket disconnected");
+    },
+    onError: (error) => {
+      console.error("Alerts WebSocket error:", error);
     },
   });
 };
