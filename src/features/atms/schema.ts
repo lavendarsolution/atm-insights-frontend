@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const atmStatusEnum = z.enum(["active", "inactive", "maintenance", "decommissioned"]);
+export const atmStatusEnum = z.enum(["active", "inactive", "warning", "error"]);
 export type ATMStatus = z.infer<typeof atmStatusEnum>;
 
 export const atmBaseSchema = z.object({
@@ -10,7 +10,7 @@ export const atmBaseSchema = z.object({
   manufacturer: z.string().max(50).optional().nullable(),
 });
 
-export const ATMCreateSchema = atmBaseSchema.extend({
+export const atmCreateSchema = atmBaseSchema.extend({
   atm_id: z
     .string()
     .min(1, "ATM ID is required")
@@ -20,7 +20,7 @@ export const ATMCreateSchema = atmBaseSchema.extend({
   status: atmStatusEnum.default("active"),
 });
 
-export const ATMUpdateSchema = z.object({
+export const atmUpdateSchema = z.object({
   name: z.string().min(1, "ATM name cannot be empty").max(100).optional(),
   location_address: z.string().optional().nullable(),
   model: z.string().max(50).optional().nullable(),
@@ -36,6 +36,6 @@ export const atmSchema = atmBaseSchema.extend({
 });
 
 export type ATMBase = z.infer<typeof atmBaseSchema>;
-export type ATMCreate = z.infer<typeof ATMCreateSchema>;
-export type ATMUpdate = z.infer<typeof ATMUpdateSchema>;
+export type ATMCreate = z.infer<typeof atmCreateSchema>;
+export type ATMUpdate = z.infer<typeof atmUpdateSchema>;
 export type ATM = z.infer<typeof atmSchema>;

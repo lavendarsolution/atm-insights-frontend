@@ -1,16 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
+import { Notifier } from "@/components/ui/notifier";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import { DashboardLayout } from "./components/layouts/DashboardLayout";
 import ATMDetail from "./pages/ATMDetail";
-import AddATM from "./pages/AddATM";
 import Alerts from "./pages/Alerts";
-import EditATM from "./pages/EditATM";
 import NotFound from "./pages/NotFound";
 import Analytics from "./pages/PageAnalytics";
 import Dashboard from "./pages/PageDashboard";
@@ -36,7 +34,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AppProvider>
       <TooltipProvider>
-        <Toaster />
+        <Notifier />
         <Sonner />
         <BrowserRouter>
           <Routes>
@@ -61,9 +59,7 @@ const App = () => (
 
               {/* ATM routes - PageAtms now has its own real-time provider */}
               <Route path="/atms" element={<PageAtms />} />
-              <Route path="/atm/add" element={<AddATM />} />
               <Route path="/atm/:atmId" element={<ATMDetail />} />
-              <Route path="/atm/:atmId/edit" element={<EditATM />} />
 
               {/* Other routes */}
               <Route path="/analytics" element={<Analytics />} />

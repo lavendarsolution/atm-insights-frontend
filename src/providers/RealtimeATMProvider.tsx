@@ -1,7 +1,7 @@
 import React, { ReactNode, createContext, useContext, useEffect, useReducer } from "react";
 
 import { WebSocketMessage, useATMDetailWebSocket } from "@/hooks/useWebSocket";
-import { toast } from "sonner";
+import { notification } from "sonner";
 
 interface ATMTelemetry {
   time: string;

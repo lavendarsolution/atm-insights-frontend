@@ -112,7 +112,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         })
         .catch((error) => {
           console.error("Failed to fetch user data:", error);
-          toast.error("Failed to fetch user data. Please log in again.");
+          toast.error("Session expired. Please log in again.");
         })
         .finally(() => {
           dispatch({ type: "isAuthenticating", payload: false });

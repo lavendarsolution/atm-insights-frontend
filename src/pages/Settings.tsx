@@ -1,4 +1,4 @@
-import { useToast } from "@/hooks/use-toast";
+import { useNotification } from "@/hooks/use-notification";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,10 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageContainer from "@/components/layouts/PageContainer";
 
 export default function Settings() {
-  const { toast } = useToast();
+  const { notification } = useNotification();
 
   const handleSave = (section: string) => {
-    toast({
+    notification({
       title: `${section} settings saved`,
       description: "Your settings have been updated successfully.",
     });

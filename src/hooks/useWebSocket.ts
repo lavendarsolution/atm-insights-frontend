@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { toast } from "sonner";
+import { notification } from "sonner";
 
 import env from "@/lib/env";
 

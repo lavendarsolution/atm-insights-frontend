@@ -19,3 +19,9 @@ export const getMonthName = (monthNumber: number) => {
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   return months[monthNumber - 1] || "Invalid month";
 };
+
+export const formatLastUpdate = (date: string | Date) => {
+  if (!date) return "Never";
+  const formattedDate = dayjs.utc(date).format("MMM D, YYYY h:mm a");
+  return `Last updated: ${formattedDate}`;
+};

@@ -1,7 +1,6 @@
-import { ATMQueryParams, fetchATMs } from "@/apis/atms";
-import { useQuery } from "@tanstack/react-query";
-
-import HttpClient from "@/lib/HttpClient";
+import { ATMQueryParams, createATM, fetchATMById, fetchATMs, updateATM } from "@/apis/atms";
+import { ATMCreate, ATMUpdate } from "@/features/atms/schema";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useATMData(params: ATMQueryParams) {
   return useQuery({
@@ -14,6 +13,30 @@ export function useATMData(params: ATMQueryParams) {
 export function useAtmById(atmId: string) {
   return useQuery({
     queryKey: ["atm", atmId],
-    queryFn: () => HttpClient.Get(`/api/v1/atms/${atmId}`),
+    queryFn: () => fetchATMById(atmId),
+    enabled: !!atmId,
+  });
+}
+
+export function useCreateATM() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: ATMCreate) => createATM(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["atms"] });
+    },
+  });
+}
+
+export function useUpdateATM() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ atmId, data }: { atmId: string; data: ATMUpdate }) => updateATM(atmId, data),
+    onSuccess: (_, { atmId }) => {
+      queryClient.invalidateQueries({ queryKey: ["atms"] });
+      queryClient.invalidateQueries({ queryKey: ["atm", atmId] });
+    },
   });
 }
