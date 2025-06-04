@@ -20,6 +20,6 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Add your nginx.conf
 COPY ./pipeline/nginx.conf /etc/nginx/conf.d/default.conf
 # Expose port
-EXPOSE 9090
+EXPOSE 9999
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]

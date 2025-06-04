@@ -3,4 +3,4 @@ build:
 
 run:
 	docker ps -a -q -f name=atm-insights-frontend | grep -q . && docker rm -f atm-insights-frontend || echo "Container not running or doesn't exist"
-	docker run -p 9090:9090 --name atm-insights-frontend -d atm-insights-frontend:latest
+	docker run -p 9999:9999 --name atm-insights-frontend -d atm-insights-frontend:latest
