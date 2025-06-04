@@ -270,7 +270,7 @@ export default function Dashboard() {
                   <TableBody>
                     {recentAlerts.map((alert) => (
                       <TableRow key={alert.id}>
-                        <TableCell className="font-mono text-sm">{new Date(alert.timestamp).toLocaleTimeString()}</TableCell>
+                        <TableCell className="text-sm">{new Date(alert.timestamp).toLocaleTimeString()}</TableCell>
                         <TableCell>
                           <Button variant="link" className="h-auto p-0" onClick={() => navigate(`/atm/${alert.atm_id}`)}>
                             {alert.atm_id}

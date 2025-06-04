@@ -419,7 +419,7 @@ export default function Alerts() {
                       ) : (
                         filteredAlerts.map((alert) => (
                           <TableRow key={alert.alert_id} className="group hover:bg-muted/50">
-                            <TableCell className="font-mono text-sm">{formatTimestamp(alert.triggered_at)}</TableCell>
+                            <TableCell className="text-sm">{formatTimestamp(alert.triggered_at)}</TableCell>
                             <TableCell className="font-medium">{alert.atm_id}</TableCell>
                             <TableCell>
                               <div>

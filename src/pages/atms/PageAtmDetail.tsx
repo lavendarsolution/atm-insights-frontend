@@ -538,7 +538,7 @@ function AtmDetailContent({ atmId }) {
                     ) : (
                       telemetryHistory.slice(0, 50).map((telemetry, index) => (
                         <TableRow key={`${telemetry.time}-${index}`} className={index === 0 ? "bg-green-50" : ""}>
-                          <TableCell className="font-mono text-sm">
+                          <TableCell className="text-sm">
                             {new Date(telemetry.time).toLocaleString()}
                             {index === 0 && (
                               <Badge variant="outline" className="ml-2 text-xs">
