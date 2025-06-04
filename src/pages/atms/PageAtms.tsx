@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { HighRiskATM, getHighRiskATMs } from "@/apis/predictions";
 import { useATMData, useDeleteAtmByIdMutation } from "@/features/atms/hooks";
 import { ATM, regionEnum } from "@/features/atms/schema";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -7,7 +8,7 @@ import { useQueryParams } from "@/hooks/useQueryParams";
 import { RealtimeATMsProvider, useRealtimeATMs } from "@/providers/RealtimeATMsProvider";
 import { PaginationState } from "@tanstack/react-table";
 import { ColumnDef } from "@tanstack/react-table";
-import { Clock, Plus, Search, Wifi, WifiOff } from "lucide-react";
+import { AlertTriangle, Clock, Plus, RefreshCcw, Search, Wifi, WifiOff } from "lucide-react";
 import { Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -63,6 +64,11 @@ function ATMsListContent() {
   const [searchTerm, setSearchTerm] = useState(queryParams.search || "");
   const [statusFilter, setStatusFilter] = useState(queryParams.status || "all");
   const [regionFilter, setRegionFilter] = useState(queryParams.region || "all");
+  const [showHighRisk, setShowHighRisk] = useState(false);
+
+  // High-risk ATMs state
+  const [highRiskATMs, setHighRiskATMs] = useState<HighRiskATM[]>([]);
+  const [highRiskLoading, setHighRiskLoading] = useState(false);
 
   // Debounce search term to avoid too many API calls
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -92,8 +98,53 @@ function ATMsListContent() {
     }
   }, [atmData?.data, realtimeActions]);
 
+  // Fetch high-risk ATMs when show high-risk filter is enabled
+  useEffect(() => {
+    if (showHighRisk) {
+      fetchHighRiskATMs();
+    }
+  }, [showHighRisk]);
+
+  // Auto-refresh high-risk ATMs every 15 seconds when filter is active
+  useEffect(() => {
+    let interval: number | null = null;
+
+    if (showHighRisk) {
+      interval = window.setInterval(() => {
+        fetchHighRiskATMs();
+      }, 15000); // 15 seconds
+    }
+
+    return () => {
+      if (interval) {
+        window.clearInterval(interval);
+      }
+    };
+  }, [showHighRisk]);
+
+  const fetchHighRiskATMs = async () => {
+    setHighRiskLoading(true);
+    try {
+      const response = await getHighRiskATMs(0.7, 50, true);
+      setHighRiskATMs(response.high_risk_atms);
+    } catch (error) {
+      console.error("Error fetching high-risk ATMs:", error);
+      toast.error("Failed to load high-risk ATMs");
+    } finally {
+      setHighRiskLoading(false);
+    }
+  };
+
   // Use real-time ATMs data instead of API data for rendering
-  const displayATMs = realtimeState.atms.length > 0 ? realtimeState.atms : atmData?.data || [];
+  const displayATMs = useMemo(() => {
+    const baseATMs = realtimeState.atms.length > 0 ? realtimeState.atms : atmData?.data || [];
+
+    if (showHighRisk && highRiskATMs.length > 0) {
+      const highRiskIds = new Set(highRiskATMs.map((hrAtm) => hrAtm.atm_id));
+      return baseATMs.filter((atm) => highRiskIds.has(atm.atm_id));
+    }
+    return baseATMs;
+  }, [realtimeState.atms, atmData?.data, showHighRisk, highRiskATMs]);
 
   // Create columns with real-time status updates
   const atmColumns = useMemo(() => {
@@ -321,6 +372,19 @@ function ATMsListContent() {
             <Input placeholder="Search ATMs..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-8 md:w-[300px]" />
           </div>
           <div className="flex gap-2">
+            <Button variant={showHighRisk ? "default" : "outline"} size="sm" onClick={() => setShowHighRisk(!showHighRisk)} disabled={highRiskLoading}>
+              {highRiskLoading ? (
+                <>
+                  <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                <>
+                  <AlertTriangle className="mr-2 h-4 w-4" />
+                  High Risk {showHighRisk && `(${highRiskATMs.length})`}
+                </>
+              )}
+            </Button>
             <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="All Status" />

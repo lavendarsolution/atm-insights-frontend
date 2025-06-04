@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
+import { PredictionResponse, predictATMFailure } from "@/apis/predictions";
 import { useAtmById } from "@/features/atms/hooks";
 import { ATM } from "@/features/atms/schema";
 import { RealtimeATMProvider, useRealtimeATM } from "@/providers/RealtimeATMProvider";
@@ -7,6 +8,7 @@ import {
   Activity,
   AlertTriangle,
   ArrowLeft,
+  Brain,
   Clock,
   Cpu,
   DollarSign,
@@ -14,11 +16,13 @@ import {
   Minus,
   RefreshCcw,
   Settings,
+  Shield,
   Thermometer,
   TrendingDown,
   TrendingUp,
   Wifi,
   WifiOff,
+  Zap,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -41,6 +45,10 @@ function AtmDetailContent({ atmId }) {
 
   const [chartData, setChartData] = useState<any[]>([]);
   const [selectedTab, setSelectedTab] = useState("overview");
+  const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
+  const [predictionLoading, setPredictionLoading] = useState(false);
+  const [predictionError, setPredictionError] = useState<string | null>(null);
+  const [lastPredictionUpdate, setLastPredictionUpdate] = useState<string | null>(null);
 
   const { data: atm } = useAtmById(atmId);
 
@@ -62,6 +70,54 @@ function AtmDetailContent({ atmId }) {
       setChartData(chartDataFromTelemetry);
     }
   }, [telemetryHistory]);
+
+  const fetchPrediction = useCallback(async () => {
+    if (!atmId) return;
+
+    setPredictionLoading(true);
+    setPredictionError(null);
+
+    try {
+      const predictionData = await predictATMFailure({
+        atm_id: atmId,
+        use_cache: true,
+        cache_ttl: 60, // Reduced cache TTL to 15 seconds for auto-refresh
+      });
+      setPrediction(predictionData);
+      setLastPredictionUpdate(new Date().toISOString());
+    } catch (error) {
+      console.error("Error fetching prediction:", error);
+      setPredictionError(error.message || "Failed to load prediction data");
+    } finally {
+      setPredictionLoading(false);
+    }
+  }, [atmId]);
+
+  // Fetch prediction when ATM ID changes or when predictions tab is selected
+  useEffect(() => {
+    if (atmId && selectedTab === "predictions") {
+      fetchPrediction();
+    }
+  }, [atmId, selectedTab, fetchPrediction]);
+
+  // Auto-refresh predictions every 15 seconds when predictions tab is active
+  useEffect(() => {
+    let interval: number | null = null;
+
+    if (atmId && selectedTab === "predictions") {
+      // Set up auto-refresh interval
+      interval = window.setInterval(() => {
+        fetchPrediction();
+      }, 15000); // 15 seconds
+    }
+
+    // Cleanup interval when tab changes or component unmounts
+    return () => {
+      if (interval) {
+        window.clearInterval(interval);
+      }
+    };
+  }, [atmId, selectedTab, fetchPrediction]);
 
   const formatLastUpdate = (timestamp: string | null) => {
     if (!timestamp) return "Never";
@@ -137,6 +193,40 @@ function AtmDetailContent({ atmId }) {
     return "text-red-600";
   };
 
+  const getRiskLevelColor = (riskLevel: string) => {
+    switch (riskLevel.toLowerCase()) {
+      case "low":
+        return "text-green-600";
+      case "medium":
+        return "text-yellow-600";
+      case "high":
+        return "text-orange-600";
+      case "critical":
+        return "text-red-600";
+      default:
+        return "text-gray-600";
+    }
+  };
+
+  const getRiskLevelBadgeVariant = (riskLevel: string) => {
+    switch (riskLevel.toLowerCase()) {
+      case "low":
+        return "default";
+      case "medium":
+        return "secondary";
+      case "high":
+        return "destructive";
+      case "critical":
+        return "destructive";
+      default:
+        return "outline";
+    }
+  };
+
+  const formatProbability = (probability: number) => {
+    return `${(probability * 100).toFixed(1)}%`;
+  };
+
   if (!atm) {
     return (
       <div className="p-8 text-center">
@@ -208,10 +298,11 @@ function AtmDetailContent({ atmId }) {
 
       {/* Main Content Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList className="mb-2 grid w-full grid-cols-4">
+        <TabsList className="mb-2 grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="telemetry">Live Telemetry</TabsTrigger>
           <TabsTrigger value="charts">Charts</TabsTrigger>
+          <TabsTrigger value="predictions">Predictions</TabsTrigger>
           <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
         </TabsList>
 
@@ -708,6 +799,185 @@ function AtmDetailContent({ atmId }) {
                       <p className="text-sm text-muted-foreground">Now • {latestTelemetry.error_message || latestTelemetry.error_code}</p>
                     </div>
                   </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Predictions Tab */}
+        <TabsContent value="predictions" className="space-y-3">
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Failure Prediction Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-blue-600" />
+                  Failure Prediction
+                </CardTitle>
+                <CardDescription className="flex items-center gap-2">
+                  AI-powered failure risk assessment
+                  {selectedTab === "predictions" && (
+                    <span className="ml-2 inline-flex items-center gap-1">
+                      <div className="h-2 w-2 animate-pulse rounded-full bg-blue-500"></div>
+                      <span className="text-xs text-blue-600">Auto-refreshing every 15s</span>
+                    </span>
+                  )}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {predictionLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <RefreshCcw className="mr-2 h-6 w-6 animate-spin text-muted-foreground" />
+                    <span className="text-muted-foreground">Analyzing ATM data...</span>
+                  </div>
+                ) : predictionError ? (
+                  <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-red-600" />
+                      <p className="font-medium text-red-800">Prediction Error</p>
+                    </div>
+                    <p className="mt-1 text-sm text-red-700">{predictionError}</p>
+                    <Button variant="outline" size="sm" onClick={fetchPrediction} className="mt-3">
+                      <RefreshCcw className="mr-2 h-4 w-4" />
+                      Retry
+                    </Button>
+                  </div>
+                ) : prediction ? (
+                  <>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Failure Probability</span>
+                        <span className={`text-lg font-bold ${getRiskLevelColor(prediction.risk_level)}`}>
+                          {formatProbability(prediction.failure_probability)}
+                        </span>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Risk Level</span>
+                          <Badge variant={getRiskLevelBadgeVariant(prediction.risk_level)}>{prediction.risk_level.toUpperCase()}</Badge>
+                        </div>
+                        <Progress value={prediction.failure_probability * 100} className="h-3" />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Confidence Score</span>
+                        <span className="font-medium">{formatProbability(prediction.confidence)}</span>
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span>Prediction Generated</span>
+                          <span>{new Date(prediction.timestamp).toLocaleString()}</span>
+                        </div>
+                        {lastPredictionUpdate && (
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>Last Refreshed</span>
+                            <span>{formatLastUpdate(lastPredictionUpdate)}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {prediction.risk_level === "high" || prediction.risk_level === "critical" ? (
+                      <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
+                        <div className="flex items-center gap-2">
+                          <Zap className="h-5 w-5 text-orange-600" />
+                          <p className="font-medium text-orange-800">High Risk Alert</p>
+                        </div>
+                        <p className="mt-1 text-sm text-orange-700">This ATM has a high probability of failure. Consider scheduling preventive maintenance.</p>
+                      </div>
+                    ) : (
+                      <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+                        <div className="flex items-center gap-2">
+                          <Shield className="h-5 w-5 text-green-600" />
+                          <p className="font-medium text-green-800">Low Risk</p>
+                        </div>
+                        <p className="mt-1 text-sm text-green-700">This ATM is operating within normal parameters with low failure risk.</p>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="py-8 text-center">
+                    <p className="text-muted-foreground">No prediction data available</p>
+                    <Button variant="outline" size="sm" onClick={fetchPrediction} className="mt-3">
+                      Load Prediction
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full" onClick={fetchPrediction} disabled={predictionLoading}>
+                  <RefreshCcw className={`mr-2 h-4 w-4 ${predictionLoading ? "animate-spin" : ""}`} />
+                  Refresh Prediction
+                </Button>
+              </CardFooter>
+            </Card>
+
+            {/* Risk Factors Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-amber-600" />
+                  Risk Factors
+                </CardTitle>
+                <CardDescription>Key factors contributing to failure risk</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {prediction?.top_risk_factors && prediction.top_risk_factors.length > 0 ? (
+                  <div className="space-y-3">
+                    {prediction.top_risk_factors.map((factor, index) => (
+                      <div key={index} className="flex items-center justify-between rounded-lg border p-3">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{factor.feature}</p>
+                          {factor.value && <p className="text-xs text-muted-foreground">Current: {factor.value}</p>}
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-medium">{(factor.importance * 100).toFixed(1)}%</div>
+                          <div className="text-xs text-muted-foreground">Impact</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-8 text-center text-muted-foreground">
+                    <TrendingDown className="mx-auto mb-2 h-8 w-8 opacity-50" />
+                    <p>No risk factors data available</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Prediction History */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Prediction History & Trends</CardTitle>
+              <CardDescription>Historical failure probability trends</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                <div className="flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-blue-600" />
+                  <p className="font-medium text-blue-800">ML Model Information</p>
+                </div>
+                <div className="mt-3 grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
+                  <div>
+                    <p className="font-medium text-blue-700">Model Type</p>
+                    <p className="text-blue-600">Random Forest Classifier</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-blue-700">Features Analyzed</p>
+                    <p className="text-blue-600">28 telemetry parameters</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-blue-700">Accuracy</p>
+                    <p className="text-blue-600">~85% on test data</p>
+                  </div>
+                </div>
+                {prediction?.processing_time_ms && (
+                  <p className="mt-2 text-xs text-blue-600">Prediction computed in {prediction.processing_time_ms.toFixed(1)}ms</p>
                 )}
               </div>
             </CardContent>

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 
+import { HighRiskATM, getHighRiskATMs } from "@/apis/predictions";
 import { useRealtimeDashboard } from "@/providers/RealtimeDashboardProvider";
-import { Activity, AlertTriangle, Clock, PiggyBank, RefreshCw, Wifi, WifiOff } from "lucide-react";
+import { Activity, AlertTriangle, Brain, Clock, PiggyBank, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +19,8 @@ export default function Dashboard() {
   const { stats, alerts, isConnected, isLoading, lastUpdate, lastStatsUpdate } = state;
 
   const [showConnectionStatus, setShowConnectionStatus] = useState(false);
+  const [highRiskATMs, setHighRiskATMs] = useState<HighRiskATM[]>([]);
+  const [highRiskLoading, setHighRiskLoading] = useState(false);
 
   // Show connection status temporarily when connection changes
   useEffect(() => {
@@ -25,6 +28,35 @@ export default function Dashboard() {
     const timer = setTimeout(() => setShowConnectionStatus(false), 3000);
     return () => clearTimeout(timer);
   }, [isConnected]);
+
+  // Fetch high-risk ATMs on component mount
+  useEffect(() => {
+    fetchHighRiskATMs();
+  }, []);
+
+  // Auto-refresh high-risk ATMs every 15 seconds
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      fetchHighRiskATMs();
+    }, 15000); // 15 seconds
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, []);
+
+  const fetchHighRiskATMs = async () => {
+    setHighRiskLoading(true);
+    try {
+      const response = await getHighRiskATMs(0.7, 10, true);
+      setHighRiskATMs(response.high_risk_atms);
+    } catch (error) {
+      console.error("Error fetching high-risk ATMs:", error);
+      // Silently fail for dashboard - we don't want to show errors here
+    } finally {
+      setHighRiskLoading(false);
+    }
+  };
 
   const formatLastUpdate = (timestamp: string | null) => {
     if (!timestamp) return "Never";
@@ -142,7 +174,7 @@ export default function Dashboard() {
 
         {/* Additional Stats Row */}
         {stats && (
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Transactions Today</CardTitle>
@@ -173,6 +205,27 @@ export default function Dashboard() {
               <CardContent>
                 <div className="text-lg font-bold">{formatLastUpdate(lastStatsUpdate)}</div>
                 <p className="text-xs text-muted-foreground">Auto-refresh every 15s</p>
+              </CardContent>
+            </Card>
+
+            {/* High-Risk ATMs Card */}
+            <Card className="cursor-pointer transition-colors hover:bg-muted/50" onClick={() => navigate("/atms")}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">High-Risk ATMs</CardTitle>
+                <Brain className="h-4 w-4 text-orange-500" />
+              </CardHeader>
+              <CardContent>
+                {highRiskLoading ? (
+                  <div className="flex items-center gap-2">
+                    <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Loading...</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-2xl font-bold text-orange-600">{highRiskATMs.length}</div>
+                    <p className="text-xs text-muted-foreground">{highRiskATMs.length > 0 ? "Require attention" : "All ATMs healthy"}</p>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -248,6 +301,108 @@ export default function Dashboard() {
             )}
           </CardContent>
         </Card>
+
+        {/* High-Risk ATMs Section */}
+        {highRiskATMs.length > 0 && (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-orange-500" />
+                  High-Risk ATMs
+                </CardTitle>
+                <CardDescription>ATMs predicted to have a higher probability of failure based on machine learning analysis</CardDescription>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => navigate("/atms")}>
+                View All ATMs
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {highRiskLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+                  <span className="ml-2 text-muted-foreground">Loading high-risk predictions...</span>
+                </div>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>ATM ID</TableHead>
+                        <TableHead>Location</TableHead>
+                        <TableHead>Risk Level</TableHead>
+                        <TableHead>Failure Probability</TableHead>
+                        <TableHead>Confidence</TableHead>
+                        <TableHead>Primary Risk Factor</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {highRiskATMs.slice(0, 5).map((atm) => {
+                        const getRiskLevelColor = (riskLevel: string) => {
+                          switch (riskLevel.toLowerCase()) {
+                            case "critical":
+                              return "destructive";
+                            case "high":
+                              return "high";
+                            case "medium":
+                              return "warning";
+                            case "low":
+                              return "secondary";
+                            default:
+                              return "outline";
+                          }
+                        };
+
+                        const formatProbability = (prob: number) => `${(prob * 100).toFixed(1)}%`;
+
+                        const getPrimaryRiskFactor = (factors: Array<{ feature: string; importance: number; value?: string | number }>) => {
+                          if (factors && factors.length > 0) {
+                            const topFactor = factors[0]; // Already sorted by importance in backend
+                            return `${topFactor.feature.replace("_", " ")} (${topFactor.importance.toFixed(2)})`;
+                          }
+                          return "Unknown";
+                        };
+
+                        return (
+                          <TableRow key={atm.atm_id}>
+                            <TableCell>
+                              <Button variant="link" className="h-auto p-0 font-mono" onClick={() => navigate(`/atm/${atm.atm_id}`)}>
+                                {atm.atm_id}
+                              </Button>
+                            </TableCell>
+                            <TableCell className="max-w-[200px] truncate">{atm.location || "Unknown Location"}</TableCell>
+                            <TableCell>
+                              <Badge variant={getRiskLevelColor(atm.risk_level)}>{atm.risk_level.charAt(0).toUpperCase() + atm.risk_level.slice(1)}</Badge>
+                            </TableCell>
+                            <TableCell className="font-mono">
+                              <span className="font-semibold text-orange-600">{formatProbability(atm.failure_probability)}</span>
+                            </TableCell>
+                            <TableCell className="font-mono">{(atm.confidence * 100).toFixed(0)}%</TableCell>
+                            <TableCell className="text-sm">{getPrimaryRiskFactor(atm.top_risk_factors)}</TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="outline" size="sm" onClick={() => navigate(`/atm/${atm.atm_id}`)}>
+                                View Details
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+
+              {highRiskATMs.length > 5 && (
+                <div className="mt-4 flex justify-end">
+                  <Button variant="ghost" className="text-xs" onClick={() => navigate("/atms")}>
+                    View All {highRiskATMs.length} High-Risk ATMs
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Connection Status Banner */}
         {!isConnected && !isLoading && (
