@@ -50,7 +50,7 @@ export default function Login() {
         {/* Header */}
         <div className="flex flex-col items-center justify-center text-center">
           <img src="/assets/logo-green-v.png" className="w-[320px]" />
-          <p className="text-base text-muted-foreground">Real-time ATM transaction monitoring and fraud detection system</p>
+          <p className="text-base text-muted-foreground">Real-time ATM transaction monitoring and failure prediction system</p>
         </div>
 
         {/* Login Form */}
